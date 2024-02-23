@@ -1,0 +1,85 @@
+<script lang="ts">
+    type LogData = {
+        timestamp: number,
+        level: string,
+        module: string,
+        message: string,
+        ftimestamp?: string
+    };
+
+    export let log: LogData;
+
+    let date = new Date(log.timestamp);
+
+    /* Maybe use another variable instead of log.ftimestamp? */
+    log.ftimestamp = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}.${date.getMilliseconds().toString().padStart(4, '0')}`;
+</script>
+
+<div>
+    <p class="timestamp">[{log.ftimestamp}]</p>
+    <span class="{log.level}">{log.level}</span>
+    <p class="module"> [{log.module}]</p>
+    <p class="message">{log.message}</p>
+</div>
+
+<style>
+    p {
+        display: inline;
+        color: #ABB2BF;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 1px;
+        width: 100%
+    }
+
+    span {
+        display: inline-block;
+        width:70px;
+        max-width:70px;
+        border-radius: 30px;
+        text-align: center;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 2px 8px 2px 8px;
+        margin: 1px 8px 1px 8px;
+        font-size: smaller;
+        color: whitesmoke;
+        text-align: center;
+    }
+
+    .timestamp {
+        display: inline-block;
+        width: 120px;
+        max-width: 120px;
+        color: #ABB2BF;
+    }
+
+    .DEBUG {
+        background-color: rgb(58, 58, 254);
+    }
+
+    .INFO {
+        background-color: #61AFEF;
+    }
+
+    .WARN {
+        background-color: #E5C07B;
+        color: rgb(9, 9, 9);
+    }
+
+    .ERROR {
+        background-color: #E06C75;
+    }
+
+    .CRIT {
+        background-color: rgb(240, 52, 52);
+    }
+
+    .module {
+        display: inline-block;
+        width: 300px;
+        max-width: 300px;
+        color: #ABB2BF;
+    }
+
+</style>
