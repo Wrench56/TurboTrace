@@ -1,4 +1,6 @@
-export const logs = [
+import { writable } from "svelte/store";
+
+const LogStore = writable([
     {
         message: "Welcome to",
         text_align: "left"
@@ -36,4 +38,6 @@ export const logs = [
         module: "src.lib.default",
         message: "Default"
     }
-];
+]);
+
+export default LogStore;
