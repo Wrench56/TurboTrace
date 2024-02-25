@@ -5,7 +5,8 @@ export enum LogLevel {
     INFO = "INFO",
     WARN = "WARN",
     ERROR = "ERROR",
-    CRIT = "CRIT"
+    CRIT = "CRIT",
+    INTERNAL = "PRGME"
 }
 
 export enum TextAlign {

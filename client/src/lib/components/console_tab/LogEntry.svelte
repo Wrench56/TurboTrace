@@ -3,6 +3,7 @@
 
     export let log: ConsolePrint;
 
+    log.level ??= LogLevel.INTERNAL;
     log.timestamp ??= 0;
     let date = new Date(log.timestamp);
 
@@ -68,6 +69,11 @@
 
     .CRIT {
         background-color: rgb(240, 52, 52);
+    }
+
+    /* Program/Internal error */
+    .PRGME {
+        background-color: rgb(92, 0, 0);
     }
 
     .module {

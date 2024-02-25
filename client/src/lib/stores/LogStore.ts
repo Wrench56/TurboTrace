@@ -39,6 +39,12 @@ const LogStore = writable([
         level: LogLevel.CRIT,
         module: "src.lib.default",
         message: "Default"
+    },
+    {
+        timestamp: 0,
+        level: LogLevel.INTERNAL,
+        module: "src.lib.default",
+        message: "Default"
     }
 ]);
 
