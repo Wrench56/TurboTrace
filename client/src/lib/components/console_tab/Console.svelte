@@ -3,11 +3,15 @@
     // @ts-ignore
     import LazyList from 'lazy-load-list/svelte' 
 
+    import Overview from '$lib/components/console_tab/Overview.svelte';
+
     import LogEntry from '$lib/components/console_tab/LogEntry.svelte';
     import Print from '$lib/components/console_tab/LogPrint.svelte';
-    import Header from './Header.svelte';
+    import Header from '$lib/components/console_tab/Header.svelte';
 
-    export let items: Map<string, string | number> | any = [];
+    import type { ConsolePrint } from "$lib/types/console_tab.types";
+
+    export let items: Array<ConsolePrint>;
 </script>
 
 <div class="center">

@@ -1,14 +1,9 @@
 <script lang="ts">
-    type LogData = {
-        timestamp: number,
-        level: string,
-        module: string,
-        message: string,
-        ftimestamp?: string
-    };
+    import { LogLevel, type ConsolePrint } from "$lib/types/console_tab.types";
 
-    export let log: LogData;
+    export let log: ConsolePrint;
 
+    log.timestamp ??= 0;
     let date = new Date(log.timestamp);
 
     /* Maybe use another variable instead of log.ftimestamp? */

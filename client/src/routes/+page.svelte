@@ -2,19 +2,11 @@
     import Console from "$lib/components/console_tab/Console.svelte";
     import LogStore from "$lib/stores/LogStore.ts";
 
-    /* TODO: Make better ConsoleData structure */
-    type ConsoleData = {
-        message?: string,
-        text_align?: string,
-        header?: boolean,
-        timestamp?: number,
-        level?: string
-        module?: string
-    }
+    import type { ConsolePrint } from "$lib/types/console_tab.types";
 
-    let logs: Array<ConsoleData>;
+    let logs: Array<ConsolePrint>;
 
-    LogStore.subscribe((data: Array<ConsoleData>) => {
+    LogStore.subscribe((data: Array<ConsolePrint>) => {
         logs = data;
     });
 </script>

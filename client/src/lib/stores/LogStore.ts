@@ -1,40 +1,42 @@
 import { writable } from "svelte/store";
+import { LogLevel, TextAlign } from "$lib/types/console_tab.types"; 
+
 
 const LogStore = writable([
     {
         message: "Welcome to",
-        text_align: "left"
+        text_align: TextAlign.LEFT
     },
     {
         header: true
     },
     {
         timestamp: 0,
-        level: "DEBUG",
+        level: LogLevel.DEBUG,
         module: "src.lib.default",
         message: "Default"
     },
     {
         timestamp: 0,
-        level: "INFO",
+        level: LogLevel.INFO,
         module: "src.lib.default",
         message: "Default"
     },
     {
         timestamp: 0,
-        level: "WARN",
+        level: LogLevel.WARN,
         module: "src.lib.default",
         message: "Default"
     },
     {
         timestamp: 0,
-        level: "ERROR",
+        level: LogLevel.ERROR,
         module: "src.lib.default",
         message: "Default"
     },
     {
         timestamp: 0,
-        level: "CRIT",
+        level: LogLevel.CRIT,
         module: "src.lib.default",
         message: "Default"
     }
