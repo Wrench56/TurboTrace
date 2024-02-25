@@ -16,6 +16,9 @@
 
 <div class="center">
     <div class="console">
+        <div class=center-horiz>
+            <Overview />
+        </div>
         <LazyList
             data={items}
             itemsPerRender={120}
@@ -37,7 +40,7 @@
 
 <style>
     .console {
-        background-color: rgba(40, 44, 52, 0.9);
+        background-color: rgba(40, 44, 52, 1);
         border-radius: 12px;
         width: 92%;
         height: 85%;
@@ -51,5 +54,11 @@
         align-items: center;
         justify-content: center;
         height: 97vh;
+    }
+
+    .center-horiz {
+        display: block;
+        margin: auto;
+        width: 100%;
     }
 </style>
