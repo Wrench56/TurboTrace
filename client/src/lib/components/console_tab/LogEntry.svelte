@@ -59,8 +59,7 @@
     }
 
     .WARN {
-        background-color: #E5C07B;
-        color: rgb(9, 9, 9);
+        background-color: #eda113;
     }
 
     .ERROR {
