@@ -1,23 +1,51 @@
 use tauri::Manager;
 
+use std::time::Instant;
+
 #[derive(Clone, serde::Serialize)]
-struct Payload<'a> {
-  timestamp: u32,
-  level: &'a str,
-  module: &'a str,
-  message: &'a str
+pub struct Payload<'a> {
+	pub timestamp: u128,
+	pub level: &'a str,
+	pub module: &'a str,
+	pub message: &'a str
 }
 
-pub fn new_log(app: &tauri::AppHandle) {
-  std::thread::sleep(std::time::Duration::from_secs(1));
-  match app.emit_all("ttlog", Payload {
-    timestamp: 0,
-    level: "DEBUG",
-    module: "src.lib.backend",
-    message: "Hello World from Rust!"
-  }) {
-    Ok(_) => {},
-    /* TODO: Handle exceptions */
-    Err(_) => panic!("Error while sending payload"),
-  }
+macro_rules! internal_error {
+    ($app_handle:expr, $message:expr) => {
+		use crate::tcp::emitter::__internal_error;
+        __internal_error($app_handle, module_path!(), $message);
+    };
+}
+
+pub(crate) use internal_error;
+
+pub fn log(app: &tauri::AppHandle, payload: Payload) {
+	match app.emit_all("ttlog", payload) {
+    	Ok(_) => {},
+    	/* TODO: Handle exceptions */
+    	Err(_) => panic!("Error while sending payload"),
+  	}
+}
+
+/* Use the internal_error!() macro instead of calling this directly */
+#[doc(hidden)]
+pub fn __internal_error(app: &tauri::AppHandle, module: &str, message: &str) {
+	match emit_internal(app, "PRGME", module, message) {
+		Ok(_) => {},
+		/* TODO: Handle exceptions */
+		Err(_) => panic!("Error while sending PRGME payload!"),
+	}
+}
+
+fn emit_internal(app: &tauri::AppHandle, level: &str, module: &str, message: &str) -> tauri::Result<()> {
+	app.emit_all("ttlog", Payload {
+    	timestamp: get_timestamp(),
+    	level: level,
+    	module: module,
+    	message: message
+  	})
+}
+
+fn get_timestamp() -> u128 {
+	Instant::now().elapsed().as_millis()
 }
