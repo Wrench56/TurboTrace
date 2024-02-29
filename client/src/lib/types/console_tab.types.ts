@@ -24,3 +24,10 @@ export type ConsolePrint = {
     module?: string,
     ftimestamp?: string
 }
+
+export type LogEntry = {
+    timestamp: number,
+    level: LogLevel,
+    module: string,
+    message: string
+}

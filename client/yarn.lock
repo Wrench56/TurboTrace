@@ -537,6 +537,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@tauri-apps/api@npm:^1.5.3":
+  version: 1.5.3
+  resolution: "@tauri-apps/api@npm:1.5.3"
+  checksum: 10c0/7709c368603881d1f615eb334261339b55f479e44af112702ce42e65a7bf1cfd48e95a7ad3efec9d275d78c09af43fe0b7c3acffc7cef6a14a470a457b807272
+  languageName: node
+  linkType: hard
+
 "@tauri-apps/cli-darwin-arm64@npm:1.5.10":
   version: 1.5.10
   resolution: "@tauri-apps/cli-darwin-arm64@npm:1.5.10"
@@ -1078,6 +1085,7 @@ __metadata:
     "@sveltejs/adapter-static": "npm:^3.0.1"
     "@sveltejs/kit": "npm:^2.0.0"
     "@sveltejs/vite-plugin-svelte": "npm:^3.0.0"
+    "@tauri-apps/api": "npm:^1.5.3"
     "@tauri-apps/cli": "npm:^1.5.10"
     "@types/eslint": "npm:^8.56.0"
     "@typescript-eslint/eslint-plugin": "npm:^7.0.2"

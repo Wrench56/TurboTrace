@@ -10,6 +10,21 @@
     import Header from '$lib/components/console_tab/Header.svelte';
 
     import type { ConsolePrint } from "$lib/types/console_tab.types";
+    import type { Event } from "$lib/types/event.types";
+
+    import { listen } from "@tauri-apps/api/event";
+    import { onMount } from 'svelte';
+    import LogStore from "$lib/stores/LogStore";
+
+    onMount(async () => {
+		await listen("ttlog", (event: Event<LogEntry>) => {
+            LogStore.update((items) => {
+                // @ts-ignore
+                items.push(event.payload as ConsolePrint);
+                return items;
+            });
+        });
+	});
 
     export let items: Array<ConsolePrint>;
 </script>
