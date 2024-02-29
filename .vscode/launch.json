@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Build Tauri EXE",
+            "command": "yarn --cwd ${workspaceFolder}/client tauri build",
+            "request": "launch",
+            "showTerminal": true,
+            "type": "f5anything"
+        },
+        {
+            "name": "Start Tauri Dev",
+            "command": "yarn --cwd ${workspaceFolder}/client tauri dev",
+            "request": "launch",
+            "showTerminal": true,
+            "type": "f5anything"
+        }
+    ]
+}
