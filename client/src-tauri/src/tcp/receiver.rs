@@ -1,15 +1,29 @@
-use std::net::{TcpStream, SocketAddr};
+use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
 use crate::tcp::emitter;
 
-static IP: [u8; 4] = [172, 22, 11, 2];
-static PORT: u16 = 1000;
+use crate::settings::SETTINGS_LOCK;
 
 pub fn start_listener(app: tauri::AppHandle) {
     std::thread::spawn(move || {
         loop {
-            if let Ok(stream) = TcpStream::connect_timeout(&SocketAddr::from((IP, PORT)), Duration::from_secs(2)) {
+            let ip: IpAddr;
+            let port: u16;
+        
+            if let Ok(settings) = SETTINGS_LOCK.read() {
+                ip = IpAddr::from(settings.tt_log_ip);
+                port = settings.tt_log_port;
+            } else {
+                emitter::internal_error!(&app, "RwLock failed!");
+
+                /* Leave thread */
+                return;
+            }
+            
+        
+            if let Ok(stream) = TcpStream::connect_timeout(
+                &SocketAddr::new(ip, port), Duration::from_secs(2)) {
                 /* Parse and send logs */
             } else {
                 emitter::internal_error!(&app, "TCP connection failed!");

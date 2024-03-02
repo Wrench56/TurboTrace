@@ -3,6 +3,7 @@
 
 use tauri::Manager;
 
+mod settings;
 mod tcp;
 
 
