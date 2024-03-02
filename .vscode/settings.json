@@ -4,6 +4,8 @@
     "rust-analyzer.linkedProjects": [
         "client/src-tauri/Cargo.toml",
     ],
+    "rustTestExplorer.rootCargoManifestFilePath": "client/src-tauri/Cargo.toml",
     "crates.incompatibleDecorator": "⚠️ ${version}",
-    "crates.errorDecorator": "🚩 Errors detected"
+    "crates.errorDecorator": "🚩 Errors detected",
+    "rust-analyzer.showUnlinkedFileNotification": false,
 }
