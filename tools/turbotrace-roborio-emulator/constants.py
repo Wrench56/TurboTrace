@@ -1,0 +1,5 @@
+VERIF_CODE = b'TTinit'
+ACK_CODE = b'ACK'
+ERR_CODE = b'ERR'
+VER_CODE = b'VER'
+ITS_CODE = b'ITS'
