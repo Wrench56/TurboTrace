@@ -28,7 +28,7 @@ impl Savable for Settings {
     fn default() -> Settings {
         Settings {
             tt_log_ip: [172, 22, 11, 2],
-            tt_log_port: 1000
+            tt_log_port: 40025
         }
     }
 }
