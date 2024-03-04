@@ -3,26 +3,27 @@ import socket
 import payload
 import utils
 
+from art import E_B, I_B, Q_B
+
 def main():
-    print('[+] Starting TurboTrace RoboRIO Emulator...')
+    print(f'{I_B} Starting TurboTrace RoboRIO Emulator...')
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('0.0.0.0', 40025))
-    print('[+] Waiting for connection...')
+    print(f'{I_B} Waiting for connection...')
     sock.listen()
     conn, addr = sock.accept()
     with conn:
-        print(f'[+] {addr[0]}:{addr[1]} connected!')
+        print(f'{I_B} {addr[0]}:{addr[1]} connected!')
         timestamp = utils.initial_com(conn)
-        print('===========[LOAD]===========\n')
+        print(f'{"="*15}[LOOP]{"="*15}\n')
         while True:
             _payload = payload.Payload()
-            _payload.set_level(input('[?] Enter level:\n * [ LVL ] >>> '))
+            _payload.set_level(input(f'{Q_B} Enter level:\n * [ LVL ] >>> '))
             _payload.set_timestamp(timestamp)
             print(f'\n{_payload}')
-            print('===========[SENT]===========\n')
+            print(f'{"="*15}[SENT]{"="*15}\n')
 
             conn.send(_payload.send())
-
         conn.close()
 
 if __name__ == '__main__':
@@ -30,6 +31,6 @@ if __name__ == '__main__':
         try:
             main()
         except ConnectionResetError:
-            print('[!] Pipe broken, rolling back...')
+            print(f'{E_B} Pipe broken, rolling back...')
         except KeyboardInterrupt:
             break
