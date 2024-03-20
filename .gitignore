@@ -1,2 +1,5 @@
 # Ignore any __pycache__
 __pycache__
+
+# Ignore local playground
+playground
