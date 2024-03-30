@@ -1,0 +1,38 @@
+/* Source: https://stackoverflow.com/questions/13031538/track-execution-time-per-task-in-gradle-script */
+
+import java.util.concurrent.TimeUnit
+
+class TimingsListener implements TaskExecutionListener, BuildListener {
+    private long startTime
+    private timings = []
+
+    @Override
+    void beforeExecute(Task task) {
+        startTime = System.nanoTime()
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState taskState) {
+        def ms = TimeUnit.MILLISECONDS.convert(System.nanoTime() - startTime, TimeUnit.NANOSECONDS);
+        timings.add([ms.toString() + "ms", task.path])
+    }
+
+    @Override
+    void buildFinished(BuildResult result) {
+        println "\u001B[1m> Task :timings\u001B[0m\n"
+        for (timing in timings) {
+            printf "  %-9s  %s\n", timing
+        }
+    }
+
+    @Override
+    void projectsEvaluated(Gradle gradle) {}
+
+    @Override
+    void projectsLoaded(Gradle gradle) {}
+
+    @Override
+    void settingsEvaluated(Settings settings) {}
+}
+
+gradle.addListener new TimingsListener()

@@ -8,6 +8,9 @@ testlogger {
     theme 'standard'
 }
 
+/* Import build time breakdown module */
+apply from: 'buildtime.gradle'
+
 repositories {
     mavenCentral()
 }
@@ -55,6 +58,11 @@ gradlePlugin.testSourceSets.add(sourceSets.functionalTest)
 tasks.named('check') {
     /* Run functionalTest on check */
     dependsOn(tasks.functionalTest)
+}
+
+/* Print out Java deprecation warnings */
+tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:deprecation"
 }
 
 tasks.named('test') {
