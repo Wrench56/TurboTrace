@@ -1,0 +1,63 @@
+plugins {
+    id 'java-gradle-plugin'
+    id 'com.adarshr.test-logger' version '4.0.0'
+}
+
+/* Configure test logger */
+testlogger {
+    theme 'standard'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'com.github.javaparser:javaparser-symbol-solver-core:3.25.9'
+    implementation 'com.github.javaparser:javaparser-core:3.25.9'
+    implementation group: 'org.json', name: 'json', version: '20210307'
+
+    testImplementation libs.junit.jupiter
+    testImplementation 'commons-io:commons-io:2.6'
+
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+gradlePlugin {
+    plugins {
+        preprocess {
+            id = 'org.turbotrace.preprocess'
+            implementationClass = 'org.turbotrace.PreprocessorPlugin'
+        }
+    }
+}
+
+/* Source set for functionalTest */
+sourceSets {
+    functionalTest {}
+}
+
+configurations.functionalTestImplementation.extendsFrom(configurations.testImplementation)
+configurations.functionalTestRuntimeOnly.extendsFrom(configurations.testRuntimeOnly)
+
+/* Add a task to run the functional tests */
+tasks.register('functionalTest', Test) {
+    testClassesDirs = sourceSets.functionalTest.output.classesDirs
+    classpath = sourceSets.functionalTest.runtimeClasspath
+    useJUnitPlatform()
+
+    /* Ensure to run unit tests before functionalTest */
+    functionalTest.dependsOn test
+}
+
+gradlePlugin.testSourceSets.add(sourceSets.functionalTest)
+
+tasks.named('check') {
+    /* Run functionalTest on check */
+    dependsOn(tasks.functionalTest)
+}
+
+tasks.named('test') {
+    /* Use JUnit Jupiter for unit tests. */
+    useJUnitPlatform()
+}
