@@ -11,8 +11,6 @@ use crate::tcp::{emitter, parser};
 
 use crate::settings::SETTINGS_LOCK;
 
-use super::parser::concat_u8_to_u32;
-
 /* Constants */
 const RINGBUFFER_SIZE: usize = 4096;
 const RINGBUFFER_READ_SCHEDULE: u64 = 10;
@@ -115,7 +113,7 @@ fn verify_connection(mut stream: &TcpStream, tries: u8) -> bool {
     false
 }
 
-fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u128 {
+fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
     match stream.write_all(&ITS_BUF) {
         Ok(_) => (),
         Err(_) => {
@@ -127,11 +125,11 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u128 {
         }
     }
     std::thread::sleep(Duration::from_millis(MESSAGE_WAIT_TIME));
-    let mut buf: [u8; 16] = [0; 16];
+    let mut buf: [u8; 8] = [0; 8];
 
     /* TODO: Do some timestamp checking */
     match stream.read_exact(&mut buf) {
-        Ok(_) => match parser::concat_u8_to_u128(&buf) {
+        Ok(_) => match parser::concat_u8_to_u64(&buf) {
             Ok(value) => {
                 let _ = stream.write_all(&ACK_BUF);
                 value
@@ -179,11 +177,11 @@ fn update_frontend(
     original_app: &tauri::AppHandle,
     mut cons: Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
     rx: mpsc::Receiver<()>,
-    initial_timestamp: u128,
+    initial_timestamp: u64,
 ) {
     let app: tauri::AppHandle = original_app.clone();
     std::thread::spawn(move || {
-        let mut header: [u8; 9] = [0; 9];
+        let mut header: [u8; 6] = [0; 6];
         loop {
             match rx.try_recv() {
                 Ok(_) | Err(TryRecvError::Disconnected) => {
@@ -200,22 +198,20 @@ fn update_frontend(
             if let Ok(_) = cons.read_exact(&mut header) {
                 /*
                     The payload is as follows:
-                     - time elapsed in ms (u32) (4 * u8)
-                     - level (u8) (1 * u8)
-                     - module (u16) (2 * u16)
-                     - message_type (u16) (2 * u16)
+                     - time elapsed in ms (u16) (2 * u8)
+                     - message_type (u32) (4 * u16)
                      - (optional) message_length (in case of message_type: dynamic)
                      - message (dynamic)
 
-                    Base/Header size: 9 bytes
-                    Full size: 9 bytes + message (including message_length)
+                    Base/Header size: 6 bytes
+                    Full size: 6 bytes + message (including message_length)
                 */
 
-                let time_elapsed = concat_u8_to_u32(&header[..4]).unwrap_or_else(|_| 0);
+                let time_elapsed = parser::concat_u8_to_u16(&header[0], &header[1]);
                 let payload: emitter::Payload = emitter::Payload {
-                    timestamp: initial_timestamp + time_elapsed as u128,
-                    level: parser::char_to_level(&header[4]),
-                    module: parser::module_name(&header[5..7]),
+                    timestamp: initial_timestamp + u64::from(time_elapsed),
+                    level: "DEBUG",
+                    module: "std::default",
                     message: "Hello World",
                 };
 

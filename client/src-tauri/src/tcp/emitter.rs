@@ -1,10 +1,15 @@
 use tauri::Manager;
 
-use std::time::Instant;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use once_cell::sync::Lazy;
+
+static SINCE_THE_EPOCH: Lazy<Duration> = Lazy::new(|| SystemTime::now()
+    .duration_since(UNIX_EPOCH)
+    .expect("Time went backwards"));
 
 #[derive(Clone, serde::Serialize)]
 pub struct Payload<'a> {
-    pub timestamp: u128,
+    pub timestamp: u64,
     pub level: &'a str,
     pub module: &'a str,
     pub message: &'a str,
@@ -54,6 +59,6 @@ fn emit_internal(
     )
 }
 
-fn get_timestamp() -> u128 {
-    Instant::now().elapsed().as_millis()
+fn get_timestamp() -> u64 {
+    SINCE_THE_EPOCH.as_secs() * 1000 + SINCE_THE_EPOCH.subsec_nanos() as u64 / 1_000_000
 }
