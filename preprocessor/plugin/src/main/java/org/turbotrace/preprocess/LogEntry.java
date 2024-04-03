@@ -19,8 +19,8 @@ public class LogEntry {
   public JSONObject toJsonObject() {
     JSONObject entry = new JSONObject();
 
-    entry.put("level", logLevel);
-    entry.put("package", package_);
+    entry.put("level", encodeLogLevel(logLevel));
+    entry.put("module", package_);
     entry.put("template", template.substring(1, template.length() - 1));
     entry.put("arguments", parseArguments());
 
@@ -70,5 +70,23 @@ public class LogEntry {
     }
 
     return args;
+  }
+
+  private int encodeLogLevel(String logLevel) {
+    switch (logLevel) {
+      case "debug":
+        return 0;
+      case "info":
+        return 1;
+      case "warn":
+        return 2;
+      case "error":
+        return 3;
+      case "crit":
+        return 4;
+      default:
+        /* PRGME */
+        return 5;
+    }
   }
 }

@@ -1,8 +1,8 @@
 {
     "128": {
         "template": "Hello World: %s %i",
-        "package": "example::pkg::Example.java::Example::test",
-        "level": "info",
+        "level": 1,
+        "module": "example::pkg::Example.java::Example::test",
         "arguments": [
             {"size": 0},
             {"size": 4}
@@ -10,14 +10,14 @@
     },
     "129": {
         "template": "Calling ExampleUtils.debug()",
-        "package": "example::pkg::Example.java::Example::callUtilsDebug",
-        "level": "info",
+        "level": 1,
+        "module": "example::pkg::Example.java::Example::callUtilsDebug",
         "arguments": []
     },
     "130": {
         "template": "exampleValue: %i",
-        "package": "example::pkg::subpackages::ExampleUtils.java::ExampleUtils::debug",
-        "level": "debug",
+        "level": 0,
+        "module": "example::pkg::subpackages::ExampleUtils.java::ExampleUtils::debug",
         "arguments": [{"size": 4}]
     }
 }
