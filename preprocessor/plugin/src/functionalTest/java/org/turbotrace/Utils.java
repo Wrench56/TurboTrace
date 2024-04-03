@@ -67,9 +67,6 @@ public class Utils {
     List<Path> files1 = collectFiles(dir1.toPath());
     List<Path> files2 = collectFiles(dir2.toPath());
 
-    System.out.println(files1);
-    System.out.println(files2);
-
     /* Fail if directories have different number of files */
     if (files1.size() != files2.size()) {
       return false;
