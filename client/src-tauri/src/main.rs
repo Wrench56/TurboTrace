@@ -9,6 +9,7 @@ use storage::reader::home_dir_exists;
 use tauri::Manager;
 
 mod constants;
+mod frontend;
 mod settings;
 mod storage;
 mod tcp;

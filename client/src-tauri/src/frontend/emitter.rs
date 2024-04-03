@@ -1,11 +1,13 @@
 use tauri::Manager;
 
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use once_cell::sync::Lazy;
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-static SINCE_THE_EPOCH: Lazy<Duration> = Lazy::new(|| SystemTime::now()
-    .duration_since(UNIX_EPOCH)
-    .expect("Time went backwards"));
+static SINCE_THE_EPOCH: Lazy<Duration> = Lazy::new(|| {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards")
+});
 
 #[derive(Clone, serde::Serialize)]
 pub struct Payload<'a> {
@@ -17,7 +19,7 @@ pub struct Payload<'a> {
 
 macro_rules! internal_error {
     ($app_handle:expr, $message:expr) => {
-        use crate::tcp::emitter::__internal_error;
+        use crate::frontend::emitter::__internal_error;
         __internal_error($app_handle, module_path!(), $message);
     };
 }

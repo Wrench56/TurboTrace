@@ -7,7 +7,8 @@ use std::sync::Arc;
 use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
-use crate::tcp::{emitter, parser};
+use crate::frontend::emitter;
+use crate::tcp::parser;
 
 use crate::settings::SETTINGS_LOCK;
 
