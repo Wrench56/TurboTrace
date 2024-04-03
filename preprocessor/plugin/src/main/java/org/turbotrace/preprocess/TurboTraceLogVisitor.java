@@ -10,7 +10,8 @@ import java.util.regex.Pattern;
 import org.json.JSONObject;
 
 public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
-  private static int id = 0x0;
+  /* Reserve the first 128 IDs for special messages */
+  private static int id = 128;
   private static JSONObject json;
 
   private String filePath;
