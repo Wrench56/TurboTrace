@@ -1,4 +1,4 @@
-package example.pkg;
+package example.pkg.subpkg;
 
 public class ExampleUtils {
   public static final int exampleValue = 42;
@@ -8,6 +8,6 @@ public class ExampleUtils {
   }
 
   public static void debug() {
-    TurboTrace.debug("exampleValue: %i", exampleValue);
+    TurboTrace.debug("exampleValue: {}", exampleValue);
   }
 }
