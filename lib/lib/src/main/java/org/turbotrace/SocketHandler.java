@@ -52,7 +52,7 @@ public class SocketHandler {
     while (msg != MessageCodes.ERR) {
       switch (msg) {
         case VER:
-          if (!sendMessage(TT_INIT)) return false;
+          if (!sendRawMessage(TT_INIT)) return false;
           break;
         case ACK:
           return true;
@@ -61,7 +61,7 @@ public class SocketHandler {
       }
 
       try {
-        Thread.sleep(10);
+        Thread.sleep(50);
       } catch (InterruptedException e) {
         return false;
       }
@@ -77,6 +77,14 @@ public class SocketHandler {
   }
 
   public boolean sendMessage(byte[] message) {
+    byte[] combined = new byte[2 + message.length];
+    System.arraycopy(Utils.calculateDeltaTime(), 0, combined, 0, 2);
+    System.arraycopy(message, 0, combined, 2, message.length);
+
+    return sendRawMessage(combined);
+  }
+
+  private boolean sendRawMessage(byte[] message) {
     try {
       outputStream.write(message);
       outputStream.flush();
@@ -98,8 +106,6 @@ public class SocketHandler {
       int count = inputStream.read(buffer, 0, buffer.length);
 
       if (count == -1) return MessageCodes.IER;
-
-      /* TODO: Handle this better */
       if (count != 3) return MessageCodes.IER;
     } catch (IOException e) {
       return MessageCodes.IER;
@@ -115,7 +121,16 @@ public class SocketHandler {
         case NOP:
           return handled;
         case ITS:
-          sendMessage(Utils.calculateTimestamp());
+          byte[] combined = new byte[14];
+          byte[] message =
+              Utils.concatIdData(
+                  SpecialIds.InitialTimestamp.byteId(),
+                  Utils.longToByteArray(System.currentTimeMillis()));
+          Utils.resetDeltaTime();
+          System.arraycopy(new byte[] {0, 0}, 0, combined, 0, 2);
+          System.arraycopy(message, 0, combined, 2, 12);
+
+          sendRawMessage(combined);
           break;
         case IER:
           sendMessage(SpecialIds.InternalError.byteId());
@@ -127,5 +142,10 @@ public class SocketHandler {
 
       ++handled;
     }
+  }
+
+  /* TODO: Implement this */
+  public short handleKeepAlive() {
+    return 0;
   }
 }

@@ -1,10 +1,10 @@
 package org.turbotrace;
 
 public enum SpecialIds {
-  PreprocessorFailure(0x1),
-  DataConcatenationFailure(0x2),
-  InternalError(0x3),
-  InitialTimestamp(0x4);
+  InitialTimestamp(0x1),
+  PreprocessorFailure(0x2),
+  DataConcatenationFailure(0x3),
+  InternalError(0x4);
 
   private final int idValue;
 

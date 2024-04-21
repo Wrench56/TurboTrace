@@ -21,13 +21,10 @@ public class TurboTrace {
       socket = server.accept();
       socketHandler = new SocketHandler(socket);
 
-      /* Initialize start timestamp */
-      Utils.initTime();
-
       if (socketHandler.verify()) {
-        /* Figure out a more optimized sleep */
+        /* TODO: Figure out a more optimized sleep */
         try {
-          Thread.sleep(10);
+          Thread.sleep(50);
         } catch (InterruptedException e) {
         }
         socketHandler.handleIncoming();
@@ -74,7 +71,9 @@ public class TurboTrace {
   }
 
   /* This should be no more than ~1ms */
+  /* TODO: Disconnect if client closed */
   public static void handle() {
     socketHandler.handleIncoming();
+    socketHandler.handleKeepAlive();
   }
 }

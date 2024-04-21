@@ -3,7 +3,7 @@ package org.turbotrace;
 import java.nio.ByteBuffer;
 
 public class Utils {
-  private static long startTimestamp;
+  private static long prevDeltaTime = 0L;
 
   public static byte[] castToUnsignedInt(long value) {
     byte[] byteArray = new byte[4];
@@ -28,18 +28,27 @@ public class Utils {
     return true;
   }
 
-  public static void initTime() {
-    startTimestamp = System.currentTimeMillis();
+  public static long calculateCurrentTimestamp() {
+    return System.currentTimeMillis();
   }
 
-  public static long getInitialTime() {
-    return startTimestamp;
+  public static byte[] calculateDeltaTime() {
+    long currentTimestamp = calculateCurrentTimestamp();
+    byte[] timeDelta = Utils.shortToByteArray((short) (currentTimestamp - prevDeltaTime));
+    prevDeltaTime = currentTimestamp;
+
+    return timeDelta;
   }
 
-  public static byte[] calculateTimestamp() {
-    long deltaTimestamp = System.currentTimeMillis() - startTimestamp;
+  public static void resetDeltaTime() {
+    prevDeltaTime = calculateCurrentTimestamp();
+  }
 
-    return Utils.castToUnsignedInt(deltaTimestamp);
+  public static byte[] concatIdData(byte[] id, byte[] data) {
+    byte[] combined = new byte[4 + data.length];
+    System.arraycopy(id, 0, combined, 0, 4);
+    System.arraycopy(data, 0, combined, 4, data.length);
+    return combined;
   }
 
   public static byte[] longToByteArray(long value) {
@@ -48,5 +57,9 @@ public class Utils {
 
   public static byte[] intToByteArray(int value) {
     return ByteBuffer.allocate(4).putInt(value).array();
+  }
+
+  public static byte[] shortToByteArray(short value) {
+    return ByteBuffer.allocate(2).putShort(value).array();
   }
 }
