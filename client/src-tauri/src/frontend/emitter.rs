@@ -17,10 +17,10 @@ pub struct Payload<'a> {
     pub message: &'a str,
 }
 
+#[macro_export]
 macro_rules! internal_error {
     ($app_handle:expr, $message:expr) => {
-        use crate::frontend::emitter::__internal_error;
-        __internal_error($app_handle, module_path!(), $message);
+        $crate::frontend::emitter::__internal_error($app_handle, module_path!(), $message);
     };
 }
 
