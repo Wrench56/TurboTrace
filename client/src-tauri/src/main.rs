@@ -1,6 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use chrono::Local;
 use fern::Dispatch;
 use log::LevelFilter;
 use storage::exceptions::InitErrors;
@@ -28,7 +29,8 @@ fn main() {
     Dispatch::new()
         .format(|out, message, record| {
             out.finish(format_args!(
-                "[{}] {} - {}",
+                "{} - [{}] {} - {}",
+                Local::now().format("%Y-%m-%dT%H:%M:%S"),
                 record.level(),
                 record.target(),
                 message
