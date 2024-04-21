@@ -32,7 +32,6 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
         && methodCallExpr.getScope().get().toString().equals("TurboTrace"))) return;
 
     logLevel = methodCallExpr.getNameAsString();
-
     MethodDeclaration methodDeclaration = findEnclosingMethod(methodCallExpr);
     if (methodDeclaration != null) {
       ClassOrInterfaceDeclaration classDeclaration = findEnclosingClass(methodDeclaration);
@@ -74,8 +73,8 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
       return false;
     }
 
-    /* Save log type */
-    LogEntry entry = new LogEntry(packageString, logLevel, args.get(0).toString());
+    /* Save logtype */
+    LogEntry entry = new LogEntry(packageString, logLevel, args.get(0).toString(), methodCallExpr);
     json.put(Integer.toString(id), entry.toJsonObject());
 
     /* Inject id into method as argument */
@@ -93,8 +92,8 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
   }
 
   private int countArgumentSpecifiers(String str) {
-    /* Ignore any escaped %-s (%%) and non-valid %-s */
-    Matcher matcher = Pattern.compile("(?<!%)%[sif]").matcher(str);
+    /* Ignore any escaped {}-s (\{}) */
+    Matcher matcher = Pattern.compile("(?<!\\\\\\\\)\\{\\}").matcher(str);
     return (int) matcher.results().count();
   }
 }

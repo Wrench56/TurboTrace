@@ -1,19 +1,31 @@
 package org.turbotrace;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.github.javaparser.ast.expr.ObjectCreationExpr;
+import com.github.javaparser.ast.expr.Expression;
+import com.github.javaparser.resolution.model.typesystem.*;
+import com.github.javaparser.resolution.types.*;
+import com.github.javaparser.ast.NodeList;
+import com.github.javaparser.ast.expr.MethodCallExpr;
+
+import javax.lang.model.type.NullType;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class LogEntry {
+  private static final String UNKNOWN_WRAPPER_CLASS = "UnknownWrapper";
+
   private final String package_;
   private final String logLevel;
   private final String template;
+  private final MethodCallExpr methodCallExpr;
 
-  public LogEntry(String package_, String logLevel, String template) {
+  public LogEntry(
+      String package_, String logLevel, String template, MethodCallExpr methodCallExpr) {
     this.package_ = package_;
     this.logLevel = logLevel;
     this.template = template;
+    this.methodCallExpr = methodCallExpr;
   }
 
   public JSONObject toJsonObject() {
@@ -21,55 +33,59 @@ public class LogEntry {
 
     entry.put("level", encodeLogLevel(logLevel));
     entry.put("module", package_);
-    entry.put("template", template.substring(1, template.length() - 1));
-    entry.put("arguments", parseArguments());
+    entry.put("arguments", parseArguments(entry));
 
     return entry;
   }
 
-  public JSONArray parseArguments() {
+  public JSONArray parseArguments(JSONObject entry) {
     JSONArray args = new JSONArray();
-    JSONObject argEntry;
+    String template = this.template;
+    int argNumber = 0;
 
-    Matcher matcher = Pattern.compile("(?<!%)%[sif]").matcher(template);
-    while (matcher.find()) {
-      argEntry = new JSONObject();
-      /* Add more type specifiers */
-      switch (matcher.group()) {
-        /* String */
-        case "%s":
-          argEntry.put("size", 0);
-          break;
-        /* Number (any) */
-        case "%n":
-          argEntry.put("size", 0);
-          break;
-        /* Regular integer (32-bit) */
-        case "%i":
-          argEntry.put("size", 4);
-          break;
-        /* 64-bit integer */
-        case "%li":
-          argEntry.put("size", 8);
-          break;
-        /* Byte (number) */
-        case "%b":
-          argEntry.put("size", 1);
-          break;
-        /* Character (char) */
-        case "%c":
-          argEntry.put("size", 1);
-          break;
-        /* Error */
-        default:
-          argEntry.put("size", -1);
-          break;
+    ResolvedType argType;
+    for (Expression arg : methodCallExpr.getArguments()) {
+      /* Skip template string */
+      if (argNumber == 0) {
+        ++argNumber;
+        continue;
+      };
+
+      if (arg.isLambdaExpr()) {
+        /* This is a problem */
+        continue;
       }
 
-      args.put(argEntry);
+      argType = arg.calculateResolvedType();
+      if (argType instanceof LazyType) {
+        String value = arg.toString();
+        template = Utils.replaceNthOccurrence(template, "{}", argNumber, value.substring(1, value.length() - 1));
+        continue;
+      } else if (argType instanceof ResolvedPrimitiveType) {
+        /* Primitives */
+        args.put(((ResolvedPrimitiveType) argType).describe());
+      } else if (argType instanceof NullType) {
+        /* Ignore and remove from template */
+        template = Utils.replaceNthOccurrence(template, "{}", argNumber, "");
+        continue;
+      } else if (argType instanceof ResolvedVoidType) {
+        /* TODO: Find out whether we need this */
+      }
+
+      ++argNumber;
     }
 
+    /* Remove escaped "-s */
+    entry.put("template", template.substring(1, template.length() - 1));
     return args;
+  }
+
+  /* TODO: Use this */
+  private ObjectCreationExpr wrapWithUnknownWrapper(Expression arg) {
+    ObjectCreationExpr objectCreationExpr = new ObjectCreationExpr();
+    objectCreationExpr.setType(UNKNOWN_WRAPPER_CLASS);
+    objectCreationExpr.setArguments(NodeList.nodeList(arg));
+    return objectCreationExpr;
   }
 
   private int encodeLogLevel(String logLevel) {

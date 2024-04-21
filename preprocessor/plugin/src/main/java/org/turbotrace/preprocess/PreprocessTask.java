@@ -1,7 +1,11 @@
 package org.turbotrace;
 
 import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,6 +50,9 @@ public class PreprocessTask extends DefaultTask {
       return;
     }
 
+    /* Create Java parsers */
+    createJavaParser(srcDir);
+
     /* Setup json */
     PreprocessTask.json = new JSONObject();
   }
@@ -82,6 +89,18 @@ public class PreprocessTask extends DefaultTask {
       System.out.println("Error during preprocessing: couldn't collect all source files");
       return new ArrayList<Path>();
     }
+  }
+
+  private void createJavaParser(Path srcDir) {
+    CombinedTypeSolver typeSolver = new CombinedTypeSolver();
+
+    /* Source directory and subdirectories */
+    typeSolver.add(new JavaParserTypeSolver(srcDir.toFile()));
+
+    /* Java built-ins */
+    typeSolver.add(new ReflectionTypeSolver(false));
+
+    StaticJavaParser.setConfiguration(new ParserConfiguration().setSymbolResolver(new JavaSymbolSolver(typeSolver)));
   }
 
   private static void processFile(Path path) {

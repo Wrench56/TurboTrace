@@ -32,4 +32,19 @@ public class Utils {
               }
             });
   }
+
+  /* Source: https://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string */
+  public static int ordinalIndexOf(String str, String substr, int n) {
+    int pos = str.indexOf(substr);
+    while (--n > 0 && pos != -1)
+      pos = str.indexOf(substr, pos + 1);
+    return pos;
+  }
+
+  public static String replaceNthOccurrence(String str, String substr, int n, String replacement) {
+    int index = ordinalIndexOf(str, substr, n);
+    StringBuffer strBuff = new StringBuffer(str);
+    strBuff.replace(index, index + substr.length(), replacement);
+    return strBuff.toString();
+  }
 }
