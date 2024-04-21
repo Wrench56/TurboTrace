@@ -1,11 +1,11 @@
 {
     "128": {
-        "template": "Hello World: %s %i",
+        "template": "Hello World: {} {}",
         "level": 1,
         "module": "example::pkg::Example.java::Example::test",
         "arguments": [
-            {"size": 0},
-            {"size": 4}
+            "int",
+            "int"
         ]
     },
     "129": {
@@ -15,9 +15,9 @@
         "arguments": []
     },
     "130": {
-        "template": "exampleValue: %i",
+        "template": "exampleValue: {}",
         "level": 0,
-        "module": "example::pkg::subpackages::ExampleUtils.java::ExampleUtils::debug",
-        "arguments": [{"size": 4}]
+        "module": "example::pkg::subpkg::ExampleUtils.java::ExampleUtils::debug",
+        "arguments": ["int"]
     }
 }
