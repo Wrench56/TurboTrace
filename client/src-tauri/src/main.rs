@@ -14,6 +14,7 @@ mod frontend;
 mod settings;
 mod storage;
 mod tcp;
+mod utils;
 
 fn main() {
     if !home_dir_exists() {

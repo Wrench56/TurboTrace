@@ -8,7 +8,7 @@ use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
 use crate::frontend::emitter;
-use crate::tcp::parser;
+use crate::utils::concats;
 
 use crate::settings::SETTINGS_LOCK;
 use log;
@@ -141,13 +141,13 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
                 ()
             }
             /* ID is ITS (1) */
-            if parser::concat_u8_to_u32(&buf[2..=5]).unwrap_or_else(|_| 0) != 1 {
+            if concats::concat_u8_to_u32(&buf[2..=5]).unwrap_or_else(|_| 0) != 1 {
                 log::error!("Log ID is not 1 for initial timestamp message");
                 let _ = stream.write_all(&ERR_BUF);
                 ()
             }
 
-            match parser::concat_u8_to_u64(&buf[6..]) {
+            match concats::concat_u8_to_u64(&buf[6..]) {
                 Ok(value) => {
                     let _ = stream.write_all(&ACK_BUF);
                     value
@@ -227,7 +227,7 @@ fn update_frontend(
                     Full size: 6 bytes + message (including message_length)
                 */
 
-                let time_elapsed = parser::concat_u8_to_u16(&header[0], &header[1]);
+                let time_elapsed = concats::concat_u8_to_u16(&header[0], &header[1]);
                 let payload: emitter::Payload = emitter::Payload {
                     timestamp: initial_timestamp + u64::from(time_elapsed),
                     level: "DEBUG",
