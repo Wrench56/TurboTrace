@@ -11,6 +11,7 @@ use crate::frontend::emitter;
 use crate::tcp::parser;
 
 use crate::settings::SETTINGS_LOCK;
+use log;
 
 /* Constants */
 const RINGBUFFER_SIZE: usize = 4096;
@@ -45,6 +46,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     /* Verification */
                     if !verify_connection(&stream, 0) {
                         /* Restart connection on fail */
+                        log::error!("Verification failed");
                         emitter::internal_error!(&app, "Verification failed!");
                         stream
                             .shutdown(std::net::Shutdown::Both)
@@ -56,6 +58,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     let timestamp = get_initial_timestamp(&stream, 0);
                     if timestamp == 0 {
                         /* Restart connection on fail */
+                        log::error!("Initial timestamp invalid!");
                         emitter::internal_error!(&app, "Initial timestamp invalid!");
                         stream
                             .shutdown(std::net::Shutdown::Both)
@@ -63,6 +66,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                         continue;
                     }
 
+                    log::info!("Starting log listener loop");
                     let ringbuff = HeapRb::<u8>::new(RINGBUFFER_SIZE);
                     let (prod, cons) = ringbuff.split();
                     let (_tx, rx): (mpsc::Sender<()>, mpsc::Receiver<()>) = mpsc::channel();
@@ -76,6 +80,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                 Err(error) => match error.kind() {
                     std::io::ErrorKind::TimedOut => {}
                     error => {
+                        log::error!("{}", &format!("Unhandled error: {}", error));
                         emitter::internal_error!(&app, &format!("Unhandled error: {}", error));
                     }
                 },
@@ -126,20 +131,34 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
         }
     }
     std::thread::sleep(Duration::from_millis(MESSAGE_WAIT_TIME));
-    let mut buf: [u8; 8] = [0; 8];
-
-    /* TODO: Do some timestamp checking */
+    let mut buf: [u8; 14] = [0; 14];
     match stream.read_exact(&mut buf) {
-        Ok(_) => match parser::concat_u8_to_u64(&buf) {
-            Ok(value) => {
-                let _ = stream.write_all(&ACK_BUF);
-                value
-            }
-            Err(_) => {
+        Ok(_) => {
+            /* DeltaTimestamp is 0 */
+            if &buf[..2] != [0, 0] {
+                log::error!("DeltaTimestamp is not zero");
                 let _ = stream.write_all(&ERR_BUF);
-                0
+                ()
             }
-        },
+            /* ID is ITS (1) */
+            if parser::concat_u8_to_u32(&buf[2..=5]).unwrap_or_else(|_| 0) != 1 {
+                log::error!("Log ID is not 1 for initial timestamp message");
+                let _ = stream.write_all(&ERR_BUF);
+                ()
+            }
+
+            match parser::concat_u8_to_u64(&buf[6..]) {
+                Ok(value) => {
+                    let _ = stream.write_all(&ACK_BUF);
+                    value
+                }
+                Err(_) => {
+                    log::error!("Initial timestamp concat failed");
+                    let _ = stream.write_all(&ERR_BUF);
+                    0
+                }
+            }
+        }
         Err(_) => {
             if tries < ATTEMPTS {
                 return get_initial_timestamp(stream, tries + 1);
