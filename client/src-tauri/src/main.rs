@@ -21,6 +21,7 @@ fn main() {
             Err(InitErrors::HomeDirError) => panic!("Couldn't create home directory"),
             Err(InitErrors::SettingsDirError) => panic!("Couldn't create settings directory"),
             Err(InitErrors::LoggingDirError) => panic!("Couldn't create logging directory"),
+            Err(InitErrors::LogtypesDirError) => panic!("Couldn't create logtypes directory"),
             Err(InitErrors::SettingsJsonError) => {}
             Ok(_) => {}
         }

@@ -8,5 +8,6 @@ pub enum InitErrors {
     HomeDirError,
     SettingsDirError,
     LoggingDirError,
+    LogtypesDirError,
     SettingsJsonError,
 }
