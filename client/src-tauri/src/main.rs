@@ -11,6 +11,7 @@ use tauri::Manager;
 
 mod constants;
 mod frontend;
+mod globals;
 mod settings;
 mod storage;
 mod tcp;
@@ -46,7 +47,8 @@ fn main() {
     log::info!("Starting tauri...");
     tauri::Builder::default()
         .setup(|app| {
-            tcp::receiver::start_listener(app.app_handle());
+            globals::set_app_handle(app.app_handle());
+            tcp::receiver::start_listener();
             Ok(())
         })
         .run(tauri::generate_context!())

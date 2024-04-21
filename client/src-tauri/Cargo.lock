@@ -69,6 +69,7 @@ dependencies = [
  "chrono",
  "const_format",
  "fern",
+ "lazy_static",
  "log",
  "once_cell",
  "ringbuf",

@@ -8,6 +8,7 @@ use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
 use crate::frontend::emitter;
+use crate::globals;
 use crate::utils::concats;
 
 use crate::settings::SETTINGS_LOCK;
@@ -24,7 +25,7 @@ const ACK_BUF: [u8; 3] = [b'A', b'C', b'K'];
 const ERR_BUF: [u8; 3] = [b'E', b'R', b'R'];
 const ATTEMPTS: u8 = 5;
 
-pub fn start_listener(app: tauri::AppHandle) {
+pub fn start_listener() {
     std::thread::spawn(move || {
         let ip: IpAddr;
         let port: u16;
@@ -33,7 +34,7 @@ pub fn start_listener(app: tauri::AppHandle) {
             ip = IpAddr::from(settings.tt_log_ip);
             port = settings.tt_log_port;
         } else {
-            emitter::internal_error!(&app, "RwLock failed!");
+            emitter::internal_error!("RwLock failed!");
 
             /* Leave thread */
             return;
@@ -47,7 +48,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     if !verify_connection(&stream, 0) {
                         /* Restart connection on fail */
                         log::error!("Verification failed");
-                        emitter::internal_error!(&app, "Verification failed!");
+                        emitter::internal_error!("Verification failed!");
                         stream
                             .shutdown(std::net::Shutdown::Both)
                             .expect("Shutdown failed");
@@ -59,7 +60,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     if timestamp == 0 {
                         /* Restart connection on fail */
                         log::error!("Initial timestamp invalid!");
-                        emitter::internal_error!(&app, "Initial timestamp invalid!");
+                        emitter::internal_error!("Initial timestamp invalid!");
                         stream
                             .shutdown(std::net::Shutdown::Both)
                             .expect("Shutdown failed");
@@ -72,7 +73,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     let (_tx, rx): (mpsc::Sender<()>, mpsc::Receiver<()>) = mpsc::channel();
 
                     /* New thread */
-                    update_frontend(&app, cons, rx, timestamp);
+                    update_frontend(cons, rx, timestamp);
 
                     /* Blocks this thread */
                     handle_connection(&stream, prod);
@@ -81,7 +82,7 @@ pub fn start_listener(app: tauri::AppHandle) {
                     std::io::ErrorKind::TimedOut => {}
                     error => {
                         log::error!("{}", &format!("Unhandled error: {}", error));
-                        emitter::internal_error!(&app, &format!("Unhandled error: {}", error));
+                        emitter::internal_error!(&format!("Unhandled error: {}", error));
                     }
                 },
             }
@@ -194,12 +195,11 @@ fn handle_connection(
 }
 
 fn update_frontend(
-    original_app: &tauri::AppHandle,
     mut cons: Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
     rx: mpsc::Receiver<()>,
     initial_timestamp: u64,
 ) {
-    let app: tauri::AppHandle = original_app.clone();
+    let app = globals::get_app_handle();
     std::thread::spawn(move || {
         let mut header: [u8; 6] = [0; 6];
         loop {
