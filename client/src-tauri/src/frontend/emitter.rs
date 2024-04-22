@@ -13,11 +13,11 @@ static SINCE_THE_EPOCH: Lazy<Duration> = Lazy::new(|| {
 });
 
 #[derive(Clone, serde::Serialize)]
-pub struct Payload<'a> {
+pub struct Payload {
     pub timestamp: u64,
-    pub level: &'a str,
-    pub module: &'a str,
-    pub message: &'a str,
+    pub level: String,
+    pub module: String,
+    pub message: String,
 }
 
 #[macro_export]
@@ -39,7 +39,7 @@ pub fn log(app: &Option<Arc<tauri::AppHandle>>, payload: Payload) {
             match app.emit_all("ttlog", payload) {
                 Ok(_) => {}
                 /* TODO: Handle exceptions */
-                Err(_) => panic!("Error while sending payload"),
+                Err(_) => log::error!("Error while sending payload"),
             }
         }
         None => {
@@ -51,10 +51,15 @@ pub fn log(app: &Option<Arc<tauri::AppHandle>>, payload: Payload) {
 
 /* Use the internal_error!() macro instead of calling this directly */
 #[doc(hidden)]
-pub fn __internal_error(app: Option<Arc<tauri::AppHandle>>, module: &str, message: &str) {
+pub fn __internal_error<T: AsRef<str>>(app: Option<Arc<tauri::AppHandle>>, module: T, message: T) {
     match app {
         Some(app) => {
-            match emit_internal(&app, "PRGME", module, message) {
+            match emit_internal(
+                &app,
+                "PRGME".to_string(),
+                module.as_ref().to_string(),
+                message.as_ref().to_string(),
+            ) {
                 Ok(_) => {}
                 /* TODO: Handle exceptions */
                 Err(_) => log::error!("Failure sending PRGME internal error"),
@@ -69,9 +74,9 @@ pub fn __internal_error(app: Option<Arc<tauri::AppHandle>>, module: &str, messag
 
 fn emit_internal(
     app: &tauri::AppHandle,
-    level: &str,
-    module: &str,
-    message: &str,
+    level: String,
+    module: String,
+    message: String,
 ) -> tauri::Result<()> {
     app.emit_all(
         "ttlog",
@@ -84,6 +89,6 @@ fn emit_internal(
     )
 }
 
-fn get_timestamp() -> u64 {
+pub fn get_timestamp() -> u64 {
     SINCE_THE_EPOCH.as_secs() * 1000 + SINCE_THE_EPOCH.subsec_nanos() as u64 / 1_000_000
 }
