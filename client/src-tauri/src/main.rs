@@ -12,6 +12,7 @@ use tauri::Manager;
 mod constants;
 mod frontend;
 mod globals;
+mod logparser;
 mod settings;
 mod storage;
 mod tcp;

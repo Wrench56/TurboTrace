@@ -9,6 +9,7 @@ use std::time::Duration;
 
 use crate::frontend::emitter;
 use crate::globals;
+use crate::logparser::payload_factory::PayloadFactory;
 use crate::utils::concats;
 
 use crate::settings::SETTINGS_LOCK;
@@ -199,7 +200,7 @@ fn update_frontend(
     rx: mpsc::Receiver<()>,
     initial_timestamp: u64,
 ) {
-    let app = globals::get_app_handle();
+    let mut payload_factory = PayloadFactory::new(initial_timestamp);
     std::thread::spawn(move || {
         let mut header: [u8; 6] = [0; 6];
         loop {
@@ -216,26 +217,10 @@ fn update_frontend(
             }
 
             if let Ok(_) = cons.read_exact(&mut header) {
-                /*
-                    The payload is as follows:
-                     - time elapsed in ms (u16) (2 * u8)
-                     - message_type (u32) (4 * u16)
-                     - (optional) message_length (in case of message_type: dynamic)
-                     - message (dynamic)
-
-                    Base/Header size: 6 bytes
-                    Full size: 6 bytes + message (including message_length)
-                */
-
-                let time_elapsed = concats::concat_u8_to_u16(&header[0], &header[1]);
-                let payload: emitter::Payload = emitter::Payload {
-                    timestamp: initial_timestamp + u64::from(time_elapsed),
-                    level: "DEBUG",
-                    module: "std::default",
-                    message: "Hello World",
-                };
-
-                emitter::log(&app, payload);
+                emitter::log(
+                    &globals::get_app_handle(),
+                    payload_factory.create_payload(&mut cons, &header),
+                );
             };
         }
     });
