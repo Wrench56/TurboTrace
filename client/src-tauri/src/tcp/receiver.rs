@@ -35,6 +35,7 @@ pub fn start_listener() {
             ip = IpAddr::from(settings.tt_log_ip);
             port = settings.tt_log_port;
         } else {
+            log::error!("RwLock failed!");
             emitter::internal_error!("RwLock failed!");
 
             /* Leave thread */
@@ -45,6 +46,8 @@ pub fn start_listener() {
             /* Listen until successful connection */
             match TcpStream::connect_timeout(&SocketAddr::new(ip, port), Duration::from_secs(2)) {
                 Ok(stream) => {
+                    log::info!("Incoming connection");
+
                     /* Verification */
                     if !verify_connection(&stream, 0) {
                         /* Restart connection on fail */
@@ -55,6 +58,7 @@ pub fn start_listener() {
                             .expect("Shutdown failed");
                         continue;
                     }
+                    log::info!("Connection verified");
 
                     /* Base timestamp */
                     let timestamp = get_initial_timestamp(&stream, 0);
