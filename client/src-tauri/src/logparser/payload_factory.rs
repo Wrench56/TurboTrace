@@ -37,7 +37,8 @@ impl PayloadFactory {
         */
 
         /* Update curr_timestamp */
-        self.curr_timestamp += u64::from(concats::concat_u8_to_u16(&header[0], &header[1]));
+        self.curr_timestamp +=
+            u64::from(concats::concat_u8_to_u16(&header[..2]).unwrap_or_else(|_| 0));
         match logtype::get_logtype(
             concats::concat_u8_to_u32(&header[2..=5]).unwrap_or_else(|_| 0),
             &self.logtypes,
@@ -89,10 +90,9 @@ impl PayloadFactory {
                             emitter::internal_error!("Error while reading u16 size");
                             break;
                         }
-                        size = usize::from(concats::concat_u8_to_u16(
-                            &u16_size_buff[0],
-                            &u16_size_buff[1],
-                        ));
+                        size = usize::from(
+                            concats::concat_u8_to_u16(&u16_size_buff[..2]).unwrap_or_else(|_| 0),
+                        );
                     } else {
                         size = usize::from(u8_size_buff[0]);
                     }
