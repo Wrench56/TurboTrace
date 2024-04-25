@@ -52,14 +52,22 @@ public class Utils {
   }
 
   public static byte[] longToByteArray(long value) {
-    return ByteBuffer.allocate(8).putLong(value).array();
+    return ByteBuffer.allocate(Long.BYTES).putLong(value).array();
   }
 
   public static byte[] intToByteArray(int value) {
-    return ByteBuffer.allocate(4).putInt(value).array();
+    return ByteBuffer.allocate(Integer.BYTES).putInt(value).array();
   }
 
   public static byte[] shortToByteArray(short value) {
-    return ByteBuffer.allocate(2).putShort(value).array();
+    return ByteBuffer.allocate(Short.BYTES).putShort(value).array();
+  }
+
+  public static byte[] floatToByteArray(float value) {
+    return ByteBuffer.allocate(Float.BYTES).putFloat(value).array();
+  }
+
+  public static byte[] doubleToByteArray(double value) {
+    return ByteBuffer.allocate(Double.BYTES).putDouble(value).array();
   }
 }

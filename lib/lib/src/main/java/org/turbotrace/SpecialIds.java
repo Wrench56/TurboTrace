@@ -4,7 +4,8 @@ public enum SpecialIds {
   InitialTimestamp(0x1),
   PreprocessorFailure(0x2),
   DataConcatenationFailure(0x3),
-  InternalError(0x4);
+  LengthOverflow(0x4),
+  InternalError(0x5);
 
   private final int idValue;
 

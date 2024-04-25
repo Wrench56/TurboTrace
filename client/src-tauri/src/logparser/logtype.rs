@@ -61,6 +61,10 @@ impl LogType {
             "short" => ChunkType::KnownSizeChunk(2),
             "int" => ChunkType::KnownSizeChunk(4),
             "long" => ChunkType::KnownSizeChunk(8),
+            "float" => ChunkType::KnownSizeChunk(4),
+            "double" => ChunkType::KnownSizeChunk(8),
+            "char" => ChunkType::KnownSizeChunk(2),
+            "str" => ChunkType::SizeChunk,
             "dyn" => ChunkType::SizeChunk,
             _ => ChunkType::UnknownChunk,
         }

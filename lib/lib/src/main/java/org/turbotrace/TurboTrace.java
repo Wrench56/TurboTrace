@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class TurboTrace {
   private static final int PORT = 40025;
@@ -50,14 +51,39 @@ public class TurboTrace {
     try {
       outputStream.write(Utils.castToUnsignedInt(id));
       for (Object obj : args) {
-        /* TODO: Implement for other types */
+        /* TODO: Implement for arrays */
         if (obj instanceof Integer) {
           outputStream.write(Utils.intToByteArray(((Integer) obj).intValue()));
+        } else if (obj instanceof Long) {
+          outputStream.write(Utils.longToByteArray(((Long) obj).longValue()));
+        } else if (obj instanceof Short) {
+          outputStream.write(Utils.shortToByteArray(((Short) obj).shortValue()));
+        } else if (obj instanceof Boolean) {
+          outputStream.write((byte) (((Boolean) obj).booleanValue() ? 1 : 0));
+        } else if (obj instanceof Float) {
+          outputStream.write(Utils.floatToByteArray(((Float) obj).floatValue()));
+        } else if (obj instanceof Double) {
+          outputStream.write(Utils.doubleToByteArray(((Double) obj).doubleValue()));
+        } else if (obj instanceof Byte) {
+          outputStream.write(((Byte) obj).byteValue());
+        } else if (obj instanceof Character) {
+          outputStream.write(((Character) obj).toString().getBytes(StandardCharsets.UTF_16BE));
         } else {
           byte[] objString = obj.toString().getBytes();
-          byte[] length = Utils.castToUnsignedInt(objString.length);
+          int length = objString.length;
 
-          outputStream.write(length);
+          if (length < 255)
+            /* Send u8 length */
+            outputStream.write((byte) (length & 0xFF));
+          else if (length < 65534) {
+            /* Send u16 length */
+            outputStream.write((byte) 0);
+            outputStream.write(Utils.shortToByteArray((short) (length & 0xFFFF)));
+          } else {
+            sendData(SpecialIds.LengthOverflow.id());
+            return;
+          }
+
           outputStream.write(objString);
         }
       }
