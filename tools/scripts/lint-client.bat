@@ -4,3 +4,4 @@ cd client\src-tauri
 cargo fmt -- --check
 cargo clippy -- -D warnings
 cargo check
+cd ..\..
