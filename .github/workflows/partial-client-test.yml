@@ -1,0 +1,37 @@
+name: Rust tests
+on:
+  pull_request:
+    branches:
+      - test
+
+jobs:
+  cargo_test:
+    name: Cargo Lint & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Update local toolchain
+        run: |
+          rustup update
+          rustup component add clippy
+          rustup install nightly
+          - name: Toolchain info
+
+      - name: Toolchain info
+        run: |
+          cargo --version --verbose
+          rustc --version
+          cargo clippy --version
+
+      - name: Lint
+        working-directory: ./client/src-tauri
+        run: |
+          cargo fmt -- --check
+          cargo clippy -- -D warnings          
+  
+      - name: Test
+        working-directory: ./client/src-tauri
+        run: |
+          cargo check
+          cargo test --all          
