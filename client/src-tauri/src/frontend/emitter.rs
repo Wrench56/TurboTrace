@@ -36,15 +36,13 @@ pub(crate) use internal_error;
 pub fn log(app: &Option<Arc<tauri::AppHandle>>, payload: Payload) {
     match app {
         Some(app) => {
-            match app.emit_all("ttlog", payload) {
-                Ok(_) => {}
-                /* TODO: Handle exceptions */
-                Err(_) => log::error!("Error while sending payload"),
+            if app.emit_all("ttlog", payload).is_ok() {
+            } else {
+                log::error!("Error while sending payload");
             }
         }
         None => {
             log::error!("AppHandle has not yet been initialized");
-            return;
         }
     }
 }
@@ -60,14 +58,13 @@ pub fn __internal_error<T: AsRef<str>>(app: Option<Arc<tauri::AppHandle>>, modul
                 module.as_ref().to_string(),
                 message.as_ref().to_string(),
             ) {
-                Ok(_) => {}
+                Ok(()) => {}
                 /* TODO: Handle exceptions */
                 Err(_) => log::error!("Failure sending PRGME internal error"),
             }
         }
         None => {
             log::error!("AppHandle has not yet been initialized");
-            return;
         }
     }
 }
@@ -90,5 +87,5 @@ fn emit_internal(
 }
 
 pub fn get_timestamp() -> u64 {
-    SINCE_THE_EPOCH.as_secs() * 1000 + SINCE_THE_EPOCH.subsec_nanos() as u64 / 1_000_000
+    SINCE_THE_EPOCH.as_secs() * 1000 + u64::from(SINCE_THE_EPOCH.subsec_nanos()) / 1_000_000
 }

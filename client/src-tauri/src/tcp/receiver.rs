@@ -26,6 +26,9 @@ const ACK_BUF: [u8; 3] = [b'A', b'C', b'K'];
 const ERR_BUF: [u8; 3] = [b'E', b'R', b'R'];
 const ATTEMPTS: u8 = 5;
 
+/* Types */
+pub type TCPRingbuffer = Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>;
+
 pub fn start_listener() {
     std::thread::spawn(move || {
         let ip: IpAddr;
@@ -86,8 +89,8 @@ pub fn start_listener() {
                 Err(error) => match error.kind() {
                     std::io::ErrorKind::TimedOut => {}
                     error => {
-                        log::error!("{}", &format!("Unhandled error: {}", error));
-                        emitter::internal_error!(&format!("Unhandled error: {}", error));
+                        log::error!("{}", &format!("Unhandled error: {error}"));
+                        emitter::internal_error!(&format!("Unhandled error: {error}"));
                     }
                 },
             }
@@ -97,7 +100,7 @@ pub fn start_listener() {
 
 fn verify_connection(mut stream: &TcpStream, tries: u8) -> bool {
     match stream.write_all(&VER_BUF) {
-        Ok(_) => (),
+        Ok(()) => (),
         Err(_) => {
             if tries < ATTEMPTS {
                 return verify_connection(stream, tries + 1);
@@ -108,14 +111,9 @@ fn verify_connection(mut stream: &TcpStream, tries: u8) -> bool {
     }
     std::thread::sleep(Duration::from_millis(MESSAGE_WAIT_TIME));
     let mut buf: [u8; 6] = [0; 6];
-    match stream.read_exact(&mut buf) {
-        Ok(_) => {
-            if buf == VERIFICATION_CODE {
-                let _ = stream.write_all(&ACK_BUF);
-                return true;
-            }
-        }
-        Err(_) => (),
+    if stream.read_exact(&mut buf).is_ok() && buf == VERIFICATION_CODE {
+        let _ = stream.write_all(&ACK_BUF);
+        return true;
     }
 
     if tries < ATTEMPTS {
@@ -127,7 +125,7 @@ fn verify_connection(mut stream: &TcpStream, tries: u8) -> bool {
 
 fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
     match stream.write_all(&ITS_BUF) {
-        Ok(_) => (),
+        Ok(()) => (),
         Err(_) => {
             if tries < ATTEMPTS {
                 return get_initial_timestamp(stream, tries + 1);
@@ -139,18 +137,16 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
     std::thread::sleep(Duration::from_millis(MESSAGE_WAIT_TIME));
     let mut buf: [u8; 14] = [0; 14];
     match stream.read_exact(&mut buf) {
-        Ok(_) => {
+        Ok(()) => {
             /* DeltaTimestamp is 0 */
-            if &buf[..2] != [0, 0] {
+            if buf[..2] != [0, 0] {
                 log::error!("DeltaTimestamp is not zero");
                 let _ = stream.write_all(&ERR_BUF);
-                ()
             }
             /* ID is ITS (1) */
-            if concats::concat_u8_to_u32(&buf[2..=5]).unwrap_or_else(|_| 0) != 1 {
+            if concats::concat_u8_to_u32(&buf[2..=5]).unwrap_or(0) != 1 {
                 log::error!("Log ID is not 1 for initial timestamp message");
                 let _ = stream.write_all(&ERR_BUF);
-                ()
             }
 
             match concats::concat_u8_to_u64(&buf[6..]) {
@@ -158,7 +154,7 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
                     let _ = stream.write_all(&ACK_BUF);
                     value
                 }
-                Err(_) => {
+                Err(()) => {
                     log::error!("Initial timestamp concat failed");
                     let _ = stream.write_all(&ERR_BUF);
                     0
@@ -175,10 +171,7 @@ fn get_initial_timestamp(mut stream: &TcpStream, tries: u8) -> u64 {
     }
 }
 
-fn handle_connection(
-    mut stream: &TcpStream,
-    mut prod: Producer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
-) {
+fn handle_connection(mut stream: &TcpStream, mut prod: Producer<u8, TCPRingbuffer>) {
     let mut temp_buf: [u8; 1024] = [0; 1024];
 
     'outer: loop {
@@ -200,7 +193,7 @@ fn handle_connection(
 }
 
 fn update_frontend(
-    mut cons: Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
+    mut cons: Consumer<u8, TCPRingbuffer>,
     rx: mpsc::Receiver<()>,
     initial_timestamp: u64,
 ) {
@@ -209,7 +202,7 @@ fn update_frontend(
         let mut header: [u8; 6] = [0; 6];
         loop {
             match rx.try_recv() {
-                Ok(_) | Err(TryRecvError::Disconnected) => {
+                Ok(()) | Err(TryRecvError::Disconnected) => {
                     break;
                 }
                 Err(TryRecvError::Empty) => {}
@@ -220,7 +213,7 @@ fn update_frontend(
                 continue;
             }
 
-            if let Ok(_) = cons.read_exact(&mut header) {
+            if cons.read_exact(&mut header).is_ok() {
                 emitter::log(
                     &globals::get_app_handle(),
                     payload_factory.create_payload(&mut cons, &header),

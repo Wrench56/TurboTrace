@@ -1,13 +1,13 @@
 pub enum StorageErrors {
-    FsError,
-    JSONError,
-    CastError,
+    Filesystem,
+    LoadJson,
+    CastToObject,
 }
 
 pub enum InitErrors {
-    HomeDirError,
-    SettingsDirError,
-    LoggingDirError,
-    LogtypesDirError,
-    SettingsJsonError,
+    HomeDir,
+    SettingsDir,
+    LoggingDir,
+    LogtypesDir,
+    SettingsJson,
 }

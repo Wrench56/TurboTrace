@@ -4,7 +4,7 @@ use crate::utils::concats;
 
 pub fn format_template_string(
     template_string: &str,
-    arguments: &Vec<String>,
+    arguments: &[String],
     data: Vec<Vec<u8>>,
 ) -> String {
     if arguments.len() != data.len() {
@@ -22,10 +22,10 @@ pub fn format_template_string(
         format_template(arg, raw_data, &mut template);
     }
 
-    return template;
+    template
 }
 
-fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
+fn format_template(arg: &String, raw_data: &[u8], template: &mut String) {
     match arg.as_str() {
         "short" => {
             if raw_data.len() != 2 {
@@ -34,7 +34,7 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
             }
             replace_next(
                 template,
-                &i16::from_be_bytes(raw_data[..2].try_into().unwrap_or_else(|_| [0; 2])),
+                &i16::from_be_bytes(raw_data[..2].try_into().unwrap_or([0; 2])),
             );
         }
         "int" => {
@@ -44,7 +44,7 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
             }
             replace_next(
                 template,
-                &i32::from_be_bytes(raw_data[..4].try_into().unwrap_or_else(|_| [0; 4])),
+                &i32::from_be_bytes(raw_data[..4].try_into().unwrap_or([0; 4])),
             );
         }
         "long" => {
@@ -54,7 +54,7 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
             }
             replace_next(
                 template,
-                &i64::from_be_bytes(raw_data[..8].try_into().unwrap_or_else(|_| [0; 8])),
+                &i64::from_be_bytes(raw_data[..8].try_into().unwrap_or([0; 8])),
             );
         }
         "bool" => {
@@ -77,7 +77,7 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
             replace_next(
                 template,
                 &format_with_decimal(f32::from_be_bytes(
-                    raw_data[..4].try_into().unwrap_or_else(|_| [0; 4]),
+                    raw_data[..4].try_into().unwrap_or([0; 4]),
                 )),
             );
         }
@@ -85,7 +85,7 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
             replace_next(
                 template,
                 &format_with_decimal(f64::from_be_bytes(
-                    raw_data[..8].try_into().unwrap_or_else(|_| [0; 8]),
+                    raw_data[..8].try_into().unwrap_or([0; 8]),
                 )),
             );
         }
@@ -93,16 +93,16 @@ fn format_template(arg: &String, raw_data: &Vec<u8>, template: &mut String) {
         "char" => {
             replace_next(
                 template,
-                &String::from_utf16_lossy(&[
-                    concats::concat_u8_to_u16(&raw_data[..2]).unwrap_or_else(|_| 0)
-                ]),
+                &String::from_utf16_lossy(
+                    &[concats::concat_u8_to_u16(&raw_data[..2]).unwrap_or(0)],
+                ),
             );
         }
         "byte" => {
             replace_next(template, &(raw_data[0] as i8));
         }
         _ => {
-            log_error(&format!("Unknown argument type: {}", arg));
+            log_error(&format!("Unknown argument type: {arg}"));
         }
     }
 }
@@ -127,11 +127,11 @@ fn format_with_decimal<T>(value: T) -> String
 where
     T: Into<f64> + std::fmt::Display,
 {
-    let formatted_value = format!("{}", value);
+    let formatted_value = format!("{value}");
     if formatted_value.contains('.') {
         formatted_value
     } else {
-        format!("{}.0", formatted_value)
+        format!("{formatted_value}.0")
     }
 }
 
@@ -143,7 +143,7 @@ mod tests {
     #[test]
     fn test_template_string() {
         assert_eq!(
-            format_template_string(&"Hello World".to_string(), &vec!(), vec!()),
+            format_template_string("Hello World", &[], vec!()),
             "Hello World"
         );
     }
@@ -152,8 +152,8 @@ mod tests {
     fn test_template_string_byte() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["byte".to_string()],
+                "{}",
+                &["byte".to_string()],
                 vec![i8::MAX.to_be_bytes().to_vec()]
             ),
             i8::MAX.to_string()
@@ -164,8 +164,8 @@ mod tests {
     fn test_template_string_negative_byte() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["byte".to_string()],
+                "{}",
+                &["byte".to_string()],
                 vec![i8::MIN.to_be_bytes().to_vec()]
             ),
             i8::MIN.to_string()
@@ -176,8 +176,8 @@ mod tests {
     fn test_template_string_short() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["short".to_string()],
+                "{}",
+                &["short".to_string()],
                 vec![i16::MAX.to_be_bytes().to_vec()]
             ),
             i16::MAX.to_string()
@@ -188,8 +188,8 @@ mod tests {
     fn test_template_string_negative_short() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["short".to_string()],
+                "{}",
+                &["short".to_string()],
                 vec![i16::MIN.to_be_bytes().to_vec()]
             ),
             i16::MIN.to_string()
@@ -200,8 +200,8 @@ mod tests {
     fn test_template_string_integer() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["int".to_string()],
+                "{}",
+                &["int".to_string()],
                 vec![i32::MAX.to_be_bytes().to_vec()]
             ),
             i32::MAX.to_string()
@@ -212,8 +212,8 @@ mod tests {
     fn test_template_string_negative_integer() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["int".to_string()],
+                "{}",
+                &["int".to_string()],
                 vec![i32::MIN.to_be_bytes().to_vec()]
             ),
             i32::MIN.to_string()
@@ -224,8 +224,8 @@ mod tests {
     fn test_template_string_long() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["long".to_string()],
+                "{}",
+                &["long".to_string()],
                 vec![i64::MAX.to_be_bytes().to_vec()]
             ),
             i64::MAX.to_string()
@@ -236,8 +236,8 @@ mod tests {
     fn test_template_string_negative_long() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["long".to_string()],
+                "{}",
+                &["long".to_string()],
                 vec![i64::MIN.to_be_bytes().to_vec()]
             ),
             i64::MIN.to_string()
@@ -247,7 +247,7 @@ mod tests {
     #[test]
     fn test_template_string_bool_true() {
         assert_eq!(
-            format_template_string(&"{}".to_string(), &vec!["bool".to_string()], vec![vec![1]]),
+            format_template_string("{}", &["bool".to_string()], vec![vec![1]]),
             "true"
         );
     }
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn test_template_string_bool_false() {
         assert_eq!(
-            format_template_string(&"{}".to_string(), &vec!["bool".to_string()], vec![vec![0]]),
+            format_template_string("{}", &["bool".to_string()], vec![vec![0]]),
             "false"
         );
     }
@@ -264,8 +264,8 @@ mod tests {
     fn test_template_string_string() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["str".to_string()],
+                "{}",
+                &["str".to_string()],
                 vec!["Hello World".as_bytes().to_vec()]
             ),
             "Hello World"
@@ -276,8 +276,8 @@ mod tests {
     fn test_template_string_float() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["float".to_string()],
+                "{}",
+                &["float".to_string()],
                 vec![f32::MAX.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f32::MAX)
@@ -288,8 +288,8 @@ mod tests {
     fn test_template_string_negative_float() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["float".to_string()],
+                "{}",
+                &["float".to_string()],
                 vec![f32::MIN.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f32::MIN)
@@ -300,8 +300,8 @@ mod tests {
     fn test_template_string_smallest_positive_float() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["float".to_string()],
+                "{}",
+                &["float".to_string()],
                 vec![f32::MIN_POSITIVE.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f32::MIN_POSITIVE)
@@ -312,8 +312,8 @@ mod tests {
     fn test_template_string_double() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["double".to_string()],
+                "{}",
+                &["double".to_string()],
                 vec![f64::MAX.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f64::MAX)
@@ -324,8 +324,8 @@ mod tests {
     fn test_template_string_negative_double() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["double".to_string()],
+                "{}",
+                &["double".to_string()],
                 vec![f64::MIN.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f64::MIN)
@@ -336,8 +336,8 @@ mod tests {
     fn test_template_string_smallest_positive_double() {
         assert_eq!(
             format_template_string(
-                &"{}".to_string(),
-                &vec!["double".to_string()],
+                "{}",
+                &["double".to_string()],
                 vec![f64::MIN_POSITIVE.to_be_bytes().to_vec()]
             ),
             format_with_decimal(f64::MIN_POSITIVE)
@@ -347,11 +347,7 @@ mod tests {
     #[test]
     fn test_template_string_capital_w_char() {
         assert_eq!(
-            format_template_string(
-                &"{}".to_string(),
-                &vec!["char".to_string()],
-                vec![vec![0x00, 0x57]]
-            ),
+            format_template_string("{}", &["char".to_string()], vec![vec![0x00, 0x57]]),
             "W"
         );
     }
@@ -360,11 +356,7 @@ mod tests {
     /* Lambda (λ) = 0x03BB */
     fn test_template_string_utf16_char() {
         assert_eq!(
-            format_template_string(
-                &"{}".to_string(),
-                &vec!["char".to_string()],
-                vec![vec![0x03, 0xBB]]
-            ),
+            format_template_string("{}", &["char".to_string()], vec![vec![0x03, 0xBB]]),
             "λ"
         );
     }
@@ -373,7 +365,7 @@ mod tests {
     fn test_template_string_all_features() {
         assert_eq!(
             format_template_string(
-                &"{} = {} = {} = {} = {} = {} is always {} {} {}".to_string(),
+                "{} = {} = {} = {} = {} = {} is always {} {} {}",
                 &vec![
                     "byte".to_string(),
                     "short".to_string(),

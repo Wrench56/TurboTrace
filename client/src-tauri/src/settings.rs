@@ -5,8 +5,6 @@ use crate::{
     constants::SETTINGS_JSON,
     storage::{reader::load_struct_from_json, writer::write_json},
 };
-use log;
-use serde_json;
 
 pub(crate) static SETTINGS_LOCK: Lazy<RwLock<Settings>> =
     Lazy::new(|| RwLock::new(Settings::load()));

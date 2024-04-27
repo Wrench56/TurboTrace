@@ -1,8 +1,8 @@
-use std::{collections::HashMap, io::Read, mem::MaybeUninit, sync::Arc};
+use std::{collections::HashMap, io::Read};
 
-use ringbuf::{Consumer, SharedRb};
+use ringbuf::Consumer;
 
-use crate::{frontend::emitter, logparser::logtype, utils::concats};
+use crate::{frontend::emitter, logparser::logtype, tcp::receiver::TCPRingbuffer, utils::concats};
 
 use super::{chunk::ChunkType, logtype::LogType};
 
@@ -13,7 +13,7 @@ pub struct PayloadFactory {
 
 impl PayloadFactory {
     pub fn new(initial_timestamp: u64) -> PayloadFactory {
-        let logtypes = logtype::load_logtypes().unwrap_or_else(|_| HashMap::new());
+        let logtypes = logtype::load_logtypes().unwrap_or_default();
         Self {
             curr_timestamp: initial_timestamp,
             logtypes,
@@ -22,7 +22,7 @@ impl PayloadFactory {
 
     pub fn create_payload(
         &mut self,
-        cons: &mut Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
+        cons: &mut Consumer<u8, TCPRingbuffer>,
         header: &[u8; 6],
     ) -> emitter::Payload {
         /*
@@ -37,10 +37,9 @@ impl PayloadFactory {
         */
 
         /* Update curr_timestamp */
-        self.curr_timestamp +=
-            u64::from(concats::concat_u8_to_u16(&header[..2]).unwrap_or_else(|_| 0));
+        self.curr_timestamp += u64::from(concats::concat_u8_to_u16(&header[..2]).unwrap_or(0));
         match logtype::get_logtype(
-            concats::concat_u8_to_u32(&header[2..=5]).unwrap_or_else(|_| 0),
+            concats::concat_u8_to_u32(&header[2..=5]).unwrap_or(0),
             &self.logtypes,
         ) {
             Some(logtype) => logtype
@@ -48,7 +47,7 @@ impl PayloadFactory {
             None => {
                 let err_msg: String = format!(
                     "Logtype with ID \"{}\" doesn't exist",
-                    concats::concat_u8_to_u32(&header[2..=5]).unwrap_or_else(|_| 0)
+                    concats::concat_u8_to_u32(&header[2..=5]).unwrap_or(0)
                 );
                 log::error!("{}", err_msg);
                 emitter::Payload {
@@ -63,7 +62,7 @@ impl PayloadFactory {
 
     fn construct_data_vec(
         &self,
-        cons: &mut Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
+        cons: &mut Consumer<u8, TCPRingbuffer>,
         logtype: &LogType,
     ) -> Vec<Vec<u8>> {
         let mut args: Vec<Vec<u8>> = Vec::new();
@@ -72,30 +71,27 @@ impl PayloadFactory {
         loop {
             match logtype.get_next_arg_chunk(arg_num) {
                 ChunkType::SizeChunk => {
-                    let size: usize;
                     let mut u8_size_buff: Vec<u8> = vec![0; 1];
 
-                    if let Err(_) = cons.read_exact(&mut u8_size_buff) {
+                    if cons.read_exact(&mut u8_size_buff).is_err() {
                         log::error!("Error while reading u8 size");
                         emitter::internal_error!("Error while reading u8 size");
                         break;
                     }
 
                     /* Max size for dynamic argument: u16 */
-                    if u8_size_buff[0] == 0 {
+                    let size: usize = if u8_size_buff[0] == 0 {
                         /* Size defined by the next u16 */
                         let mut u16_size_buff: Vec<u8> = vec![0; 2];
-                        if let Err(_) = cons.read_exact(&mut u16_size_buff) {
+                        if cons.read_exact(&mut u16_size_buff).is_err() {
                             log::error!("Error while reading u16 size");
                             emitter::internal_error!("Error while reading u16 size");
                             break;
                         }
-                        size = usize::from(
-                            concats::concat_u8_to_u16(&u16_size_buff[..2]).unwrap_or_else(|_| 0),
-                        );
+                        usize::from(concats::concat_u8_to_u16(&u16_size_buff[..2]).unwrap_or(0))
                     } else {
-                        size = usize::from(u8_size_buff[0]);
-                    }
+                        usize::from(u8_size_buff[0])
+                    };
 
                     self.add_arg(cons, &mut args, size);
                 }
@@ -114,17 +110,17 @@ impl PayloadFactory {
             arg_num += 1;
         }
 
-        return args;
+        args
     }
 
     fn add_arg(
         &self,
-        cons: &mut Consumer<u8, Arc<SharedRb<u8, Vec<MaybeUninit<u8>>>>>,
+        cons: &mut Consumer<u8, TCPRingbuffer>,
         args: &mut Vec<Vec<u8>>,
         size: usize,
     ) {
         let mut arg_buffer: Vec<u8> = vec![0; size];
-        if let Err(_) = cons.read_exact(&mut arg_buffer) {
+        if cons.read_exact(&mut arg_buffer).is_err() {
             log::error!("Can't read argument from ringbuffer");
         }
         args.push(arg_buffer);
