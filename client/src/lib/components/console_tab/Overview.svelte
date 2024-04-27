@@ -127,6 +127,8 @@
         padding: 2px 12px 2px 12px;
         height: 60px;
         align-items: center;
+        box-shadow: inset 4px 4px 8px 0 rgba(0, 0, 0, 0.9),
+            inset -4px -4px 8px 0 rgba(40, 40, 40, 0.9);
     }
 
     .debug {

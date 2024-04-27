@@ -61,6 +61,7 @@
         height: 85%;
         margin: 16px;
         padding: 30px 30px 36px 36px;
+        box-shadow: 12px 12px 16px 0 #191a1b, -8px -8px 12px 0 #232425;
     }
 
     /* Fix this */
