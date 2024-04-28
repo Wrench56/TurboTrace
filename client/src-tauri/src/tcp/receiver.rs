@@ -1,5 +1,5 @@
 use ringbuf::{Consumer, HeapRb, Producer, SharedRb};
-use std::io::{Read, Write};
+use std::io::{self, Read, Write};
 use std::mem::MaybeUninit;
 use std::sync::mpsc::{self, TryRecvError};
 use std::sync::Arc;
@@ -7,7 +7,7 @@ use std::sync::Arc;
 use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
-use crate::frontend::emitter;
+use crate::frontend::{emitter, statusbar};
 use crate::globals;
 use crate::logparser::payload_factory::PayloadFactory;
 use crate::utils::concats;
@@ -61,6 +61,7 @@ pub fn start_listener() {
                             .expect("Shutdown failed");
                         continue;
                     }
+                    statusbar::update_connection_status(true);
                     log::info!("Connection verified");
 
                     /* Base timestamp */
@@ -78,13 +79,16 @@ pub fn start_listener() {
                     log::info!("Starting log listener loop");
                     let ringbuff = HeapRb::<u8>::new(RINGBUFFER_SIZE);
                     let (prod, cons) = ringbuff.split();
-                    let (_tx, rx): (mpsc::Sender<()>, mpsc::Receiver<()>) = mpsc::channel();
+                    let (tx, rx): (mpsc::Sender<()>, mpsc::Receiver<()>) = mpsc::channel();
 
                     /* New thread */
                     update_frontend(cons, rx, timestamp);
 
                     /* Blocks this thread */
                     handle_connection(&stream, prod);
+
+                    /* Close update_frontend thread */
+                    drop(tx);
                 }
                 Err(error) => match error.kind() {
                     std::io::ErrorKind::TimedOut => {}
@@ -179,14 +183,27 @@ fn handle_connection(mut stream: &TcpStream, mut prod: Producer<u8, TCPRingbuffe
             Ok(bytes_read) => {
                 if bytes_read == 0 {
                     /* Connection closed */
+                    log::info!("Connection closed");
+                    statusbar::update_connection_status(false);
                     break 'outer;
                 }
 
                 /* TODO: Overflow protection */
                 let _ = prod.write_all(&temp_buf[..bytes_read]);
             }
-            Err(_) => {
-                /* TODO: Oftentimes recoverable, implement handling for non-recoverables */
+            Err(ref e) if e.kind() == io::ErrorKind::ConnectionAborted => {
+                log::info!("Connection aborted");
+                statusbar::update_connection_status(false);
+                break 'outer;
+            }
+            Err(ref e) if e.kind() == io::ErrorKind::ConnectionReset => {
+                log::info!("Connection reset");
+                statusbar::update_connection_status(false);
+                break 'outer;
+            }
+            Err(ref e) => {
+                log::error!("Unhandled error: {}", e.kind());
+                break 'outer;
             }
         };
     }

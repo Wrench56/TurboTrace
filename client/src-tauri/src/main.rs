@@ -50,6 +50,7 @@ fn main() {
         .setup(|app| {
             globals::set_app_handle(app.app_handle());
             tcp::receiver::start_listener();
+            frontend::statusbar::watch_system();
             Ok(())
         })
         .run(tauri::generate_context!())
