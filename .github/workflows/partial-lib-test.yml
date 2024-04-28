@@ -20,10 +20,16 @@ jobs:
           distribution: termurin
 
       - name: Grant Permissions to gradlew
-        run: chmod +x gradlew
         working-directory: ./lib
+        run: chmod +x gradlew
 
-      - name: Check
+      - name: Toolchain info
+        working-directory: ./lib
+        run: |
+          java -version
+          gradlew -version
+
+      - name: Gradle Check
         working-directory: ./lib
         run: ./gradlew check --no-daemon
 
