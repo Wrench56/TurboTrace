@@ -125,6 +125,7 @@
         z-index: 2;
         border-radius: 12px;
         padding: 2px 12px 2px 12px;
+        margin-bottom: 14px;
         height: 60px;
         align-items: center;
         box-shadow: inset 4px 4px 8px 0 rgba(0, 0, 0, 0.9),
