@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -59,7 +59,7 @@ class PreprocessorPluginFunctionalTest {
       assertTrue(false);
 
     writeString(getSettingsFile(), "");
-    writeString(getBuildFile(), "plugins {" + "  id('org.turbotrace.preprocess')" + "}");
+    writeString(getBuildFile(), "plugins {" + "  id('io.github.wrench56.preprocess')" + "}");
 
     GradleRunner runner = GradleRunner.create();
     runner.forwardOutput();

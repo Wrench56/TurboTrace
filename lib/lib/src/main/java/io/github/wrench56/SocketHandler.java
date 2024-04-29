@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,12 +7,12 @@ import java.net.Socket;
 
 public class SocketHandler {
   private enum MessageCodes {
-    ACK(new byte[] {'A', 'C', 'K'}), // Acknowledge
-    ERR(new byte[] {'E', 'R', 'R'}), // Error on the other side
-    VER(new byte[] {'V', 'E', 'R'}), // Verification
-    ITS(new byte[] {'I', 'T', 'S'}), // Initial timestamp
-    IER(new byte[] {'I', 'E', 'R'}), // Internal error
-    NOP(new byte[] {'N', 'O', 'P'}); // No operation
+    ACK(new byte[] { 'A', 'C', 'K' }), // Acknowledge
+    ERR(new byte[] { 'E', 'R', 'R' }), // Error on the other side
+    VER(new byte[] { 'V', 'E', 'R' }), // Verification
+    ITS(new byte[] { 'I', 'T', 'S' }), // Initial timestamp
+    IER(new byte[] { 'I', 'E', 'R' }), // Internal error
+    NOP(new byte[] { 'N', 'O', 'P' }); // No operation
 
     private final byte[] byteArray;
 
@@ -22,13 +22,14 @@ public class SocketHandler {
 
     public static MessageCodes fromByteArray(byte[] array) {
       for (MessageCodes enumValue : MessageCodes.values()) {
-        if (Utils.byteArraysEqual(enumValue.byteArray, array)) return enumValue;
+        if (Utils.byteArraysEqual(enumValue.byteArray, array))
+          return enumValue;
       }
       return MessageCodes.IER;
     }
   };
 
-  private static final byte[] TT_INIT = {'T', 'T', 'i', 'n', 'i', 't'};
+  private static final byte[] TT_INIT = { 'T', 'T', 'i', 'n', 'i', 't' };
 
   private OutputStream outputStream;
   private InputStream inputStream;
@@ -44,7 +45,8 @@ public class SocketHandler {
   }
 
   public boolean verify() {
-    if (inputStream == null) return false;
+    if (inputStream == null)
+      return false;
     int iters = 0;
 
     /* Send verification message */
@@ -52,7 +54,8 @@ public class SocketHandler {
     while (msg != MessageCodes.ERR) {
       switch (msg) {
         case VER:
-          if (!sendRawMessage(TT_INIT)) return false;
+          if (!sendRawMessage(TT_INIT))
+            return false;
           break;
         case ACK:
           return true;
@@ -67,7 +70,8 @@ public class SocketHandler {
       }
 
       /* Fail at 1 second */
-      if (iters == 100) return false;
+      if (iters == 100)
+        return false;
       ++iters;
 
       msg = recvMessage();
@@ -96,7 +100,8 @@ public class SocketHandler {
 
   public MessageCodes recvMessage() {
     try {
-      if (inputStream.available() < 3) return MessageCodes.NOP;
+      if (inputStream.available() < 3)
+        return MessageCodes.NOP;
     } catch (IOException e) {
       return MessageCodes.IER;
     }
@@ -105,8 +110,10 @@ public class SocketHandler {
     try {
       int count = inputStream.read(buffer, 0, buffer.length);
 
-      if (count == -1) return MessageCodes.IER;
-      if (count != 3) return MessageCodes.IER;
+      if (count == -1)
+        return MessageCodes.IER;
+      if (count != 3)
+        return MessageCodes.IER;
     } catch (IOException e) {
       return MessageCodes.IER;
     }
@@ -122,12 +129,11 @@ public class SocketHandler {
           return handled;
         case ITS:
           byte[] combined = new byte[14];
-          byte[] message =
-              Utils.concatIdData(
-                  SpecialIds.InitialTimestamp.byteId(),
-                  Utils.longToByteArray(System.currentTimeMillis()));
+          byte[] message = Utils.concatIdData(
+              SpecialIds.InitialTimestamp.byteId(),
+              Utils.longToByteArray(System.currentTimeMillis()));
           Utils.resetDeltaTime();
-          System.arraycopy(new byte[] {0, 0}, 0, combined, 0, 2);
+          System.arraycopy(new byte[] { 0, 0 }, 0, combined, 0, 2);
           System.arraycopy(message, 0, combined, 2, 12);
 
           sendRawMessage(combined);

@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -92,7 +92,8 @@ public class TurboTrace {
       return;
     }
 
-    if (outputStream.size() == 0) return;
+    if (outputStream.size() == 0)
+      return;
     socketHandler.sendMessage(outputStream.toByteArray());
   }
 

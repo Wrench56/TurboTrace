@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;

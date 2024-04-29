@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 public enum SpecialIds {
   InitialTimestamp(0x1),

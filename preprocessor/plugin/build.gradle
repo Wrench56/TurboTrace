@@ -29,8 +29,8 @@ dependencies {
 gradlePlugin {
     plugins {
         preprocess {
-            id = 'org.turbotrace.preprocess'
-            implementationClass = 'org.turbotrace.PreprocessorPlugin'
+            id = 'io.github.wrench56.preprocess'
+            implementationClass = 'io.github.wrench56.PreprocessorPlugin'
         }
     }
 }

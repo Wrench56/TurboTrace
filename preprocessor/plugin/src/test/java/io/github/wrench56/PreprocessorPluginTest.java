@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import org.gradle.testfixtures.ProjectBuilder;
 import org.gradle.api.Project;
@@ -12,7 +12,7 @@ class PreprocessorPluginTest {
     @BeforeEach
     void setUp() {
         project = ProjectBuilder.builder().build();
-        project.getPlugins().apply("org.turbotrace.preprocess");
+        project.getPlugins().apply("io.github.wrench56.preprocess");
     }
 
     @Test

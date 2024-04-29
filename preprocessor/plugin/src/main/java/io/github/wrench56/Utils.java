@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,7 +33,11 @@ public class Utils {
             });
   }
 
-  /* Source: https://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-character-in-a-string */
+  /*
+   * Source:
+   * https://stackoverflow.com/questions/3976616/how-to-find-nth-occurrence-of-
+   * character-in-a-string
+   */
   public static int ordinalIndexOf(String str, String substr, int n) {
     int pos = str.indexOf(substr);
     while (--n > 0 && pos != -1)

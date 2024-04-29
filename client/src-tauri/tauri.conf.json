@@ -29,7 +29,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.wrench56.turbotrace",
+      "identifier": "io.github.wrench56",
       "longDescription": "",
       "macOS": {
         "entitlements": null,

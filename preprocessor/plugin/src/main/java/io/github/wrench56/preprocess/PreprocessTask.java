@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ParserConfiguration;
@@ -29,8 +29,7 @@ public class PreprocessTask extends DefaultTask {
   public void preprocessTask() {
     System.out.println("Starting TurboTrace preprocessor...");
     Path srcDir = ((File) getProject().getExtensions().getExtraProperties().get("srcDir")).toPath();
-    Path buildDir =
-        ((File) getProject().getExtensions().getExtraProperties().get("buildDir")).toPath();
+    Path buildDir = ((File) getProject().getExtensions().getExtraProperties().get("buildDir")).toPath();
 
     preprocessInit(srcDir, buildDir);
     preprocess(srcDir);
@@ -38,11 +37,14 @@ public class PreprocessTask extends DefaultTask {
 
   private void preprocessInit(Path srcDir, Path buildDir) {
     /* Create directories */
-    if (!createDirectory(srcDir, "Error during preprocessing: couldn't create srcDir")) return;
-    if (!createDirectory(buildDir, "Error during preprocessing: couldn't create buildDir")) return;
+    if (!createDirectory(srcDir, "Error during preprocessing: couldn't create srcDir"))
+      return;
+    if (!createDirectory(buildDir, "Error during preprocessing: couldn't create buildDir"))
+      return;
     if (!createDirectory(
         srcDir.getParent().resolve(TEMP_FOLDER),
-        "Error during preprocessing: couldn't create tempDir")) return;
+        "Error during preprocessing: couldn't create tempDir"))
+      return;
 
     /* Copy the original source code */
     if (!Utils.copyDirectory(srcDir, srcDir.getParent().resolve(TEMP_FOLDER))) {
@@ -60,12 +62,14 @@ public class PreprocessTask extends DefaultTask {
   private void preprocess(Path srcDir) {
     /* Collect all the source files recusively */
     List<Path> files = collectFiles(srcDir);
-    if (files.size() == 0) return;
+    if (files.size() == 0)
+      return;
 
     files.forEach(PreprocessTask::processFile);
 
     /* Save JSON */
-    if (!saveJsonToFile(PreprocessTask.json, srcDir.resolve(JSON_PATH))) return;
+    if (!saveJsonToFile(PreprocessTask.json, srcDir.resolve(JSON_PATH)))
+      return;
   }
 
   private boolean createDirectory(Path directory, String errorMsg) {

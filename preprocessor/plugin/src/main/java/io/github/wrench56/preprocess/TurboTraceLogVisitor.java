@@ -1,4 +1,4 @@
-package org.turbotrace;
+package io.github.wrench56;
 
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.body.*;
@@ -29,16 +29,16 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
 
     /* Check if method is TurboTrace.* */
     if (!(methodCallExpr.getScope().isPresent()
-        && methodCallExpr.getScope().get().toString().equals("TurboTrace"))) return;
+        && methodCallExpr.getScope().get().toString().equals("TurboTrace")))
+      return;
 
     logLevel = methodCallExpr.getNameAsString();
     MethodDeclaration methodDeclaration = findEnclosingMethod(methodCallExpr);
     if (methodDeclaration != null) {
       ClassOrInterfaceDeclaration classDeclaration = findEnclosingClass(methodDeclaration);
       if (classDeclaration != null) {
-        packageString =
-            createModuleString(
-                filePath, classDeclaration.getNameAsString(), methodDeclaration.getNameAsString());
+        packageString = createModuleString(
+            filePath, classDeclaration.getNameAsString(), methodDeclaration.getNameAsString());
         process(methodCallExpr);
       }
     }
