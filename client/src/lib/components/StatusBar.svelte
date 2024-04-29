@@ -2,8 +2,11 @@
   import { listen } from "@tauri-apps/api/event";
   import { onMount } from "svelte";
 
+  import LogStore from "$lib/stores/LogStore";
+
   import type { Event } from "$lib/types/event.types";
   import type { NetStatus, SysStatus } from "$lib/types/status.types";
+  import { TextAlign, type ConsolePrint } from "$lib/types/console_tab.types";
 
   let current_net_status: NetStatus = {
     connected: false,
@@ -21,6 +24,26 @@
 
     await listen("net_stat", (event: Event<NetStatus>) => {
       current_net_status = event.payload;
+      if (current_net_status.connected) {
+        LogStore.update((items) => {
+          let lastItem = items[items.length - 1];
+          if (lastItem.header == undefined && lastItem.line == undefined) {
+            items.push({
+              line: true,
+            });
+          }
+          items.push(
+            {
+              message: "New connection accepted",
+              text_align: TextAlign.CENTER,
+            },
+            {
+              line: true,
+            }
+          );
+          return items;
+        });
+      }
     });
   });
 </script>
