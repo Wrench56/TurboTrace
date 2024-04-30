@@ -34,26 +34,39 @@
     <div class="center-horiz">
       <Overview />
     </div>
-    <LazyList
-      data={items}
-      itemsPerRender={120}
-      defaultLoadingColor="#222"
-      let:item
-    >
-      {#if item.level !== undefined}
-        <LogEntry log={item} />
-      {:else if item.header !== undefined}
-        <Header />
-      {:else if item.line !== undefined}
-        <hr />
-      {:else}
-        <Print data={item} />
-      {/if}
-    </LazyList>
+    <div class="container">
+      <LazyList
+        data={items}
+        itemsPerRender={120}
+        defaultLoadingColor="#222"
+        containerClasses="custom-console-scrollbar-container"
+        let:item
+      >
+        {#if item.level !== undefined}
+          <LogEntry log={item} />
+        {:else if item.header !== undefined}
+          <Header />
+        {:else if item.line !== undefined}
+          <hr />
+        {:else}
+          <Print data={item} />
+        {/if}
+      </LazyList>
+    </div>
   </div>
 </div>
 
 <style>
+  /* Hide scrollbar */
+  :global(.custom-console-scrollbar-container) {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  :global(.custom-console-scrollbar-container::-webkit-scrollbar) {
+    display: none !important;
+  }
+
   .console {
     background-color: rgba(40, 44, 52, 1);
     border-radius: 12px;
@@ -77,5 +90,9 @@
     display: block;
     margin: auto;
     width: 100%;
+  }
+
+  .container {
+    height: 90%;
   }
 </style>
