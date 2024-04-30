@@ -1,15 +1,54 @@
+import com.vanniktech.maven.publish.SonatypeHost
+
 plugins {
-    id 'java-library'
+    id "java-library"
+    id "com.vanniktech.maven.publish" version "0.28.0"
 }
+
+group = "io.github.wrench56"
+version = "0.1.0"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:5.10.2"
 }
 
 test {
     useJUnitPlatform()
+}
+
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    signAllPublications()
+    coordinates("io.github.wrench56", "turbotrace-logger", "0.1.0")
+
+    pom {
+        name = "TurboTrace logging library"
+        description = "An optimized TCP-based Java logging library"
+        url = "https://github.com/Wrench56/TurboTrace/"
+        developers {
+            developer {
+                id = "Wrench56"
+                name = "Mark D"
+                url = "https://github.com/Wrench56/"
+            }
+        }
+
+        licenses {
+            license {
+                name = "MIT License"
+                url = "http://www.opensource.org/licenses/mit-license.php"
+                distribution = "http://www.opensource.org/licenses/mit-license.php"
+            }
+        }
+
+        scm {
+            connection = "scm:git:git://github.com/Wrench56/TurboTrace.git"
+            developerConnection = "scm:git:ssh://github.com/Wrench56/TurboTrace.git"
+            url = "https://github.com/Wrench56/TurboTrace/"
+        }
+    }
 }
