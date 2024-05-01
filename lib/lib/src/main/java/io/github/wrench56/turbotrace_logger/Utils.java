@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_logger;
 
 import java.nio.ByteBuffer;
 
