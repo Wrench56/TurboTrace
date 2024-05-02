@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor.cleanup;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
+
+import io.github.wrench56.turbotrace_preprocessor.Utils;
 
 public class Cleanup extends DefaultTask {
   private static final String TEMP_FOLDER = "temp/";

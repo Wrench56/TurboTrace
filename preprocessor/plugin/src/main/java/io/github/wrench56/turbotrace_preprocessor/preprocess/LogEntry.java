@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor.preprocess;
 
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.Expression;
@@ -11,6 +11,8 @@ import javax.lang.model.type.NullType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import io.github.wrench56.turbotrace_preprocessor.Utils;
 
 public class LogEntry {
   private static final String UNKNOWN_WRAPPER_CLASS = "UnknownWrapper";

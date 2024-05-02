@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor.preprocess;
 
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ParserConfiguration;
@@ -16,6 +16,8 @@ import java.util.List;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.TaskAction;
 import org.json.JSONObject;
+
+import io.github.wrench56.turbotrace_preprocessor.Utils;;
 
 public class PreprocessTask extends DefaultTask {
   private static final String TEMP_FOLDER = "temp/";

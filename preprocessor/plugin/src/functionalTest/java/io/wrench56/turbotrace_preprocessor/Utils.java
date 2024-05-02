@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor;
 
 import java.io.File;
 import java.io.IOException;

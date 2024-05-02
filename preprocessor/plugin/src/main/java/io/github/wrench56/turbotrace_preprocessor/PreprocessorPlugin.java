@@ -1,7 +1,10 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+
+import io.github.wrench56.turbotrace_preprocessor.preprocess.PreprocessTask;
+import io.github.wrench56.turbotrace_preprocessor.cleanup.Cleanup;
 
 public class PreprocessorPlugin implements Plugin<Project> {
   @Override

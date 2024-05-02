@@ -1,4 +1,4 @@
-package io.github.wrench56;
+package io.github.wrench56.turbotrace_preprocessor.preprocess;
 
 /* Performant wrapper for types unknown for the preprocessor */
 public class UnknownWrapper {
