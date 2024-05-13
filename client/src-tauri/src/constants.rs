@@ -1,8 +1,8 @@
 use const_format::concatcp;
 
-#[cfg(target_os = "windows")]
+#[cfg(target_family = "windows")]
 pub const HOME_DIR: &str = "C:/TurboTrace/";
-#[cfg(target_os = "unix")]
+#[cfg(target_family = "unix")]
 pub const HOME_DIR: &str = "/opt/TurboTrace/";
 
 pub const SETTINGS_PATH: &str = concatcp!(HOME_DIR, "settings/");
