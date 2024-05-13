@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.wrench56"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -19,22 +19,17 @@ dependencies {
 test {
     useJUnitPlatform()
 }
-
+    
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
-        languageVersion = JavaLanguageVersion.of(11)
-        languageVersion = JavaLanguageVersion.of(15)
         languageVersion = JavaLanguageVersion.of(17)
-        languageVersion = JavaLanguageVersion.of(21)
-        languageVersion = JavaLanguageVersion.of(22)
     }
 }
 
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
-    coordinates("io.github.wrench56", "turbotrace-logger", "1.0.1")
+    coordinates("io.github.wrench56", "turbotrace-logger", "1.0.2")
 
     pom {
         name = "TurboTrace logging library"
