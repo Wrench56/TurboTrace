@@ -1,0 +1,14 @@
+{
+    "fileName": "vendorDependencyTurboTraceLib.json",
+    "name": "TurboTrace Library vendor dependency",
+    "version": "1.0.2",
+    "frcYear": "2024",
+    "uuid": "cea1fd30-6a5e-4821-a2ba-934db8ce21b0",
+    "mavenUrls": [
+        "https://central.sonatype.com/artifact/io.github.wrench56/turbotrace-logger"
+    ],
+    "jsonUrl": "https://github.com/Wrench56/TurboTrace/blob/main/lib/vendorDependencyTurboTraceLib.json",
+    "javaDependencies": [],
+    "jniDependencies": [],
+    "cppDependencies": []
+}
