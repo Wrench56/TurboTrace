@@ -16,7 +16,6 @@ jobs:
           rustup update
           rustup component add clippy
           rustup install nightly
-          - name: Toolchain info
 
       - name: Toolchain info
         run: |
