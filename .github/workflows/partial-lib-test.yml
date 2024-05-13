@@ -27,7 +27,7 @@ jobs:
         working-directory: ./lib
         run: |
           java -version
-          gradlew -version
+          ./gradlew -version
 
       - name: Gradle Check
         working-directory: ./lib
@@ -45,22 +45,4 @@ jobs:
               pull_number,
               body: "Java library check was successful.",
               event: "APPROVE"
-            })
-      - name: Check Fail
-        if: failure()
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const pull_number = "${{github.event.number}}"
-            await github.pulls.createReview({
-              ...context.repo,
-              pull_number,
-              body: "Java library check failed.",
-             event: "REQUEST_CHANGES"
-            })
-            await github.pulls.update({
-              ...context.repo,
-              pull_number,
-              state: "closed"
             })
