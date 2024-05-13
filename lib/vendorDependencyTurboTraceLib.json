@@ -7,8 +7,14 @@
     "mavenUrls": [
         "https://central.sonatype.com/artifact/io.github.wrench56/turbotrace-logger"
     ],
-    "jsonUrl": "https://github.com/Wrench56/TurboTrace/blob/main/lib/vendorDependencyTurboTraceLib.json",
-    "javaDependencies": [],
+    "jsonUrl": "https://raw.githubusercontent.com/Wrench56/TurboTrace/main/lib/vendorDependencyTurboTraceLib.json",
+    "javaDependencies": [
+        {
+            "groupId": "io.github.wrench56",
+            "artifactId": "turbotrace-logger",
+            "version": "1.0.2"
+        }
+    ],
     "jniDependencies": [],
     "cppDependencies": []
 }
