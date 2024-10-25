@@ -1,4 +1,4 @@
-use tauri::Manager;
+use tauri::Emitter;
 
 use once_cell::sync::Lazy;
 use std::{
@@ -36,7 +36,7 @@ pub(crate) use internal_error;
 pub fn log(app: &Option<Arc<tauri::AppHandle>>, payload: Payload) {
     match app {
         Some(app) => {
-            if app.emit_all("ttlog", payload).is_ok() {
+            if app.emit("ttlog", payload).is_ok() {
             } else {
                 log::error!("Error while sending payload");
             }
@@ -75,7 +75,7 @@ fn emit_internal(
     module: String,
     message: String,
 ) -> tauri::Result<()> {
-    app.emit_all(
+    app.emit(
         "ttlog",
         Payload {
             timestamp: get_timestamp(),

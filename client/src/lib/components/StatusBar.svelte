@@ -18,11 +18,11 @@
   };
 
   onMount(async () => {
-    await listen("sys_stat", (event: Event<SysStatus>) => {
+    await listen<SysStatus>("sys_stat", (event) => {
       current_sys_status = event.payload;
     });
 
-    await listen("net_stat", (event: Event<NetStatus>) => {
+    await listen<NetStatus>("net_stat", (event) => {
       current_net_status = event.payload;
       if (current_net_status.connected) {
         LogStore.update((items) => {

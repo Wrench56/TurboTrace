@@ -1,0 +1,23 @@
+{
+    "128": {
+        "template": "Hello World: {} {}",
+        "level": 1,
+        "module": "example::pkg::Example.java::Example::test",
+        "arguments": [
+            "int",
+            "int"
+        ]
+    },
+    "129": {
+        "template": "Calling ExampleUtils.debug()",
+        "level": 1,
+        "module": "example::pkg::Example.java::Example::callUtilsDebug",
+        "arguments": []
+    },
+    "130": {
+        "template": "exampleValue: {}",
+        "level": 0,
+        "module": "example::pkg::subpkg::ExampleUtils.java::ExampleUtils::debug",
+        "arguments": ["int"]
+    }
+}

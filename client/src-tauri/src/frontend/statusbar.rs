@@ -1,4 +1,4 @@
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter};
 
 use crate::globals;
 use core::time;
@@ -19,7 +19,7 @@ struct NetStatusPayload {
 pub fn update_connection_status(connected: bool) {
     if let Some(app) = globals::get_app_handle() {
         if app
-            .emit_all("net_stat", NetStatusPayload { connected })
+            .emit("net_stat", NetStatusPayload { connected })
             .is_err()
         {
             log::error!("Couldn't emit \"net_stat\" event");
@@ -49,7 +49,7 @@ pub fn watch_system() {
         sys.refresh_memory();
 
         if app
-            .emit_all(
+            .emit(
                 "sys_stat",
                 SysStatusPayload {
                     mem_usage: ((sys.used_memory() as f64) / (sys.total_memory() as f64) * 100.0)
