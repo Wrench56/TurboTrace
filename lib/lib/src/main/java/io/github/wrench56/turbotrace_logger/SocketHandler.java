@@ -128,15 +128,7 @@ public class SocketHandler {
         case NOP:
           return handled;
         case ITS:
-          byte[] combined = new byte[14];
-          byte[] message = Utils.concatIdData(
-              SpecialIds.InitialTimestamp.byteId(),
-              Utils.longToByteArray(System.currentTimeMillis()));
-          Utils.resetDeltaTime();
-          System.arraycopy(new byte[] { 0, 0 }, 0, combined, 0, 2);
-          System.arraycopy(message, 0, combined, 2, 12);
-
-          sendRawMessage(combined);
+          sendInitialTimestamp();
           break;
         case IER:
           sendMessage(SpecialIds.InternalError.byteId());
@@ -150,8 +142,26 @@ public class SocketHandler {
     }
   }
 
-  /* TODO: Implement this */
+  private boolean sendInitialTimestamp() {
+    byte[] combined = new byte[14];
+    byte[] message = Utils.concatIdData(
+        SpecialIds.InitialTimestamp.byteId(),
+        Utils.longToByteArray(System.currentTimeMillis()));
+    Utils.resetDeltaTime();
+    System.arraycopy(new byte[] { 0, 0 }, 0, combined, 0, 2);
+    System.arraycopy(message, 0, combined, 2, 12);
+
+    return sendRawMessage(combined);
+  }
+
   public short handleKeepAlive() {
-    return 0;
+    short deltaTime = Utils.calculateDeltaTimeShort();
+
+    /* Reset delta time and send ITS if we are close to overflow */
+    if (deltaTime >= 60000) {
+      sendInitialTimestamp();
+    }
+
+    return deltaTime;
   }
 }

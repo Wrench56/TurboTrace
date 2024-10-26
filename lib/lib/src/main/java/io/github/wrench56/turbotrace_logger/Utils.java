@@ -40,6 +40,10 @@ public class Utils {
     return timeDelta;
   }
 
+  public static short calculateDeltaTimeShort() {
+    return ((short) (calculateCurrentTimestamp() - prevDeltaTime));
+  }
+
   public static void resetDeltaTime() {
     prevDeltaTime = calculateCurrentTimestamp();
   }
