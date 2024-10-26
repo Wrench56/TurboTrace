@@ -32,3 +32,5 @@ export type LogEntry = {
   module: string;
   message: string;
 };
+
+export type ConsoleEntry = ConsolePrint | LogEntry;

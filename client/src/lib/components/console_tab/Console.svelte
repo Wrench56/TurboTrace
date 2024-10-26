@@ -1,30 +1,37 @@
 <script lang="ts">
-  /* Non-typescript module*/
-  // @ts-ignore
-  import LazyList from "lazy-load-list/svelte";
-
   import Overview from "$lib/components/console_tab/Overview.svelte";
 
   import LogEntry from "$lib/components/console_tab/LogEntry.svelte";
   import Print from "$lib/components/console_tab/LogPrint.svelte";
   import Header from "$lib/components/console_tab/Header.svelte";
 
-  import type { ConsolePrint } from "$lib/types/console_tab.types";
+  import { type ConsolePrint } from "$lib/types/console_tab.types";
 
   import { listen } from "@tauri-apps/api/event";
   import { onMount } from "svelte";
   import LogStore from "$lib/stores/LogStore";
+  import { levelFilterStore } from "$lib/stores/FilterStore";
 
   onMount(async () => {
     await listen<LogEntry>("ttlog", (event) => {
       LogStore.update((items) => {
         // @ts-ignore
         items.push(event.payload as ConsolePrint);
+        if (autoScroll) {
+          container?.scrollTo({
+            top: container.scrollHeight,
+            behavior: "smooth",
+          });
+        }
         return items;
       });
     });
   });
 
+  let container: HTMLDivElement;
+  let autoScroll = true;
+
+  $: filteredItems = items.filter((o, i, a) => $levelFilterStore(o, i, a));
   export let items: Array<ConsolePrint>;
 </script>
 
@@ -33,14 +40,14 @@
     <div class="center-horiz">
       <Overview />
     </div>
-    <div class="container">
-      <LazyList
-        data={items}
-        itemsPerRender={120}
-        defaultLoadingColor="#222"
-        containerClasses="custom-console-scrollbar-container"
-        let:item
-      >
+    <div
+      class="container"
+      bind:this={container}
+      on:scroll={(autoScroll =
+        container.scrollTop + container.clientHeight + 120 >=
+        container.scrollHeight)}
+    >
+      {#each filteredItems as item}
         {#if item.level !== undefined}
           <LogEntry log={item} />
         {:else if item.header !== undefined}
@@ -50,22 +57,12 @@
         {:else}
           <Print data={item} />
         {/if}
-      </LazyList>
+      {/each}
     </div>
   </div>
 </div>
 
 <style>
-  /* Hide scrollbar */
-  :global(.custom-console-scrollbar-container) {
-    -ms-overflow-style: none !important;
-    scrollbar-width: none !important;
-  }
-
-  :global(.custom-console-scrollbar-container::-webkit-scrollbar) {
-    display: none !important;
-  }
-
   .console {
     background-color: rgba(40, 44, 52, 1);
     border-radius: 12px;
@@ -92,6 +89,21 @@
   }
 
   .container {
-    height: 90%;
+    height: 85%;
+    overflow-y: auto;
+    padding: 2px;
+  }
+
+  .container::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  .container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+  }
+
+  .container::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
   }
 </style>
