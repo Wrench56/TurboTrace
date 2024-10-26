@@ -23,7 +23,7 @@
         display: inline;
         color: #ABB2BF;
         font-weight: bold;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, monospace;
         margin: 1px;
         width: 100%
     }
@@ -35,7 +35,7 @@
         border-radius: 30px;
         text-align: center;
         font-weight: bold;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, monospace;
         padding: 2px 8px 2px 8px;
         margin: 1px 8px 1px 8px;
         font-size: smaller;

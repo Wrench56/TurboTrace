@@ -71,7 +71,7 @@
     margin: 0px 20px 2px 20px;
     font-size: small;
     font-weight: bold;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif, monospace;
   }
 
   .container {

@@ -23,7 +23,7 @@
     p {
         color: #ABB2BF;
         font-weight: bold;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, monospace;
         margin: 1px;
     }
 
