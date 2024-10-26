@@ -45,7 +45,7 @@ pub fn watch_system() {
     }
 
     std::thread::spawn(move || loop {
-        sys.refresh_cpu();
+        sys.refresh_cpu_all();
         sys.refresh_memory();
 
         if app
@@ -54,7 +54,7 @@ pub fn watch_system() {
                 SysStatusPayload {
                     mem_usage: ((sys.used_memory() as f64) / (sys.total_memory() as f64) * 100.0)
                         as f32,
-                    cpu_usage: sys.global_cpu_info().cpu_usage(),
+                    cpu_usage: sys.global_cpu_usage(),
                 },
             )
             .is_err()
