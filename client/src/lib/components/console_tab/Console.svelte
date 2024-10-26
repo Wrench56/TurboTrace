@@ -43,9 +43,10 @@
     <div
       class="container"
       bind:this={container}
-      on:scroll={(autoScroll =
-        container.scrollTop + container.clientHeight + 120 >=
-        container.scrollHeight)}
+      on:scroll={() =>
+        (autoScroll =
+          container.scrollTop + container.clientHeight + 120 >=
+          container.scrollHeight)}
     >
       {#each filteredItems as item}
         {#if item.level !== undefined}
