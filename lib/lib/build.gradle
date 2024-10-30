@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.wrench56"
-version = "1.0.2"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -29,7 +29,7 @@ java {
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
     signAllPublications()
-    coordinates("io.github.wrench56", "turbotrace-logger", "1.0.2")
+    coordinates("io.github.wrench56", "turbotrace-logger", "1.1.0")
 
     pom {
         name = "TurboTrace logging library"
