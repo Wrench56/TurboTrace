@@ -1,7 +1,11 @@
 plugins {
     id 'java-gradle-plugin'
     id 'com.adarshr.test-logger' version '4.0.0'
+    id 'com.gradle.plugin-publish' version '1.2.1'
 }
+
+group = "io.github.wrench56"
+version = "1.0.0"
 
 /* Configure test logger */
 testlogger {
@@ -27,9 +31,14 @@ dependencies {
 }
 
 gradlePlugin {
+    website = 'https://github.com/Wrench56/TurboTrace' 
+    vcsUrl = 'https://github.com/Wrench56/TurboTrace'
     plugins {
         preprocess {
             id = 'io.github.wrench56.turbotrace-preprocessor'
+            displayName = 'TurboTrace'
+            description = 'TurboTrace log library Gradle preprocessor plugin'
+            tags.set(['TurboTrace', 'logging', 'preprocessor'])
             implementationClass = 'io.github.wrench56.turbotrace_preprocessor.PreprocessorPlugin'
         }
     }
