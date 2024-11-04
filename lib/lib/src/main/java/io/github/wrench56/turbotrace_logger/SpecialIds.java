@@ -1,6 +1,7 @@
 package io.github.wrench56.turbotrace_logger;
 
 public enum SpecialIds {
+  KeepAlive(0x0),
   InitialTimestamp(0x1),
   PreprocessorFailure(0x2),
   DataConcatenationFailure(0x3),

@@ -159,7 +159,7 @@ public class SocketHandler {
 
     /* Reset delta time and send ITS if we are close to overflow */
     if (deltaTime >= 60000) {
-      sendInitialTimestamp();
+      sendMessage(SpecialIds.KeepAlive.byteId());
     }
 
     return deltaTime;
