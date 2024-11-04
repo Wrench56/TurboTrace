@@ -28,7 +28,7 @@ impl PayloadFactory {
         /*
             The payload is as follows:
             - time elapsed in ms (u16) (2 * u8)
-            - message_type (u32) (4 * u16)
+            - message_type (u32) (4 * u8)
             - (optional) message_length (in case of message_type: dynamic)
             - message (dynamic)
 
