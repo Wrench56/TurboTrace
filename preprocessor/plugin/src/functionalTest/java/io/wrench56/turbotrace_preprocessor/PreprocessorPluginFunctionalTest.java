@@ -50,33 +50,40 @@ class PreprocessorPluginFunctionalTest {
   @Test
   @Order(1)
   void canRunTask() throws IOException {
+    // Define paths
     EXAMPLE_LOC = projectDir.toPath().resolve("src/");
 
-    /* Fail early on errors */
-    if (!createFolders())
-      assertTrue(false);
-    if (!Utils.copyDirectory(EXAMPLE_SRC, EXAMPLE_LOC))
-      assertTrue(false);
+    if (!createFolders()) {
+      throw new AssertionError("Failed to create required folders");
+    }
+    if (!Utils.copyDirectory(EXAMPLE_SRC, EXAMPLE_LOC)) {
+      throw new AssertionError("Failed to copy example source directory");
+    }
 
     writeString(getSettingsFile(), "");
-    writeString(getBuildFile(), "plugins {" + "  id('io.github.wrench56.turbotrace-preprocessor')" + "}");
+    writeString(getBuildFile(),
+        "plugins {" +
+            "  id 'java'\n" +
+            "  id 'io.github.wrench56.turbotrace-preprocessor'\n" +
+            "}");
 
-    GradleRunner runner = GradleRunner.create();
-    runner.forwardOutput();
-    runner.withPluginClasspath();
-    runner.withArguments("preprocess");
-    runner.withProjectDir(projectDir);
+    GradleRunner runner = GradleRunner.create()
+        .withPluginClasspath()
+        .withArguments("compileJava")
+        .withProjectDir(projectDir)
+        .forwardOutput();
+
     BuildResult result = runner.build();
 
-    /* Preprocessor starts */
-    assertTrue(result.getOutput().contains("Starting TurboTrace preprocessor..."));
+    System.out.println(result.getOutput());
+    assertTrue(result.getOutput().contains("Preprocessing with TurboTrace..."));
   }
 
   @Test
   @Order(2)
   void logtypesCreated() {
     /* JSON logtypes created */
-    assertTrue(Files.exists(EXAMPLE_LOC.resolve("logtypes.json")));
+    assertTrue(Files.exists(EXAMPLE_LOC.resolve("../logtypes.json")));
   }
 
   @Test
@@ -84,30 +91,17 @@ class PreprocessorPluginFunctionalTest {
   void logtypesCorrect() throws IOException {
     assertTrue(
         Utils.areFilesEqual(
-            EXAMPLE_LOC.resolve("logtypes.json").toFile(), EXPECTED_LOGTYPES));
+            EXAMPLE_LOC.resolve("../logtypes.json").toFile(), EXPECTED_LOGTYPES));
   }
 
   @Test
   @Order(4)
-  void canRunCleanup() {
-    GradleRunner runner = GradleRunner.create();
-    runner.forwardOutput();
-    runner.withPluginClasspath();
-    runner.withArguments("cleanup");
-    runner.withProjectDir(projectDir);
-    BuildResult result = runner.build();
-
-    assertTrue(result.getOutput().contains("Starting TurboTrace cleanup..."));
-  }
-
-  @Test
-  @Order(5)
   void tempDeleted() {
     assertTrue(Files.exists(projectDir.toPath().resolve(TEMP_DIR)));
   }
 
   @Test
-  @Order(6)
+  @Order(5)
   void srcRestored() {
     assertTrue(Utils.areDirectoriesEqual(EXAMPLE_SRC.resolve("example/pkg").toFile(), EXAMPLE_LOC.toFile()));
   }
