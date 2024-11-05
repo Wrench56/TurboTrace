@@ -1,0 +1,35 @@
+{
+    "132": {
+        "template": "This is a warning from otherFunction()",
+        "level": 2,
+        "module": "main::java::org::example::App.java::App::otherFunction",
+        "arguments": []
+    },
+    "128": {
+        "template": "The current value of counter is: {}",
+        "level": 0,
+        "module": "main::java::org::example::App.java::App::main",
+        "arguments": ["int"]
+    },
+    "129": {
+        "template": "MIT rocks!",
+        "level": 1,
+        "module": "main::java::org::example::App.java::App::main",
+        "arguments": []
+    },
+    "130": {
+        "template": "Hello World {}, {}",
+        "level": 1,
+        "module": "main::java::org::example::App.java::App::main",
+        "arguments": [
+            "str",
+            "long"
+        ]
+    },
+    "131": {
+        "template": "We do not like {}",
+        "level": 3,
+        "module": "main::java::org::example::App.java::App::main",
+        "arguments": ["str"]
+    }
+}
