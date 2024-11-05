@@ -59,9 +59,15 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
   }
 
   private boolean process(MethodCallExpr methodCallExpr) {
+    List<Expression> args = methodCallExpr.getArguments();
+
+    /* TurboTrace.init() or TurboTrace.handle() */
+    if (args.size() == 0) {
+      return false;
+    }
+
     methodCallExpr.setName("log");
 
-    List<Expression> args = methodCallExpr.getArguments();
     if (!args.get(0).isLiteralStringValueExpr()) {
       System.out.println("Error during preprocessing: first argument is not a template string");
       return false;
