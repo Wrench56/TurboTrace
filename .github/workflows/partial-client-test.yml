@@ -26,8 +26,7 @@ jobs:
           librsvg2-dev \
           libappindicator-dev \
           libgdk3.0-cil \
-          libatk1.0-dev \
-          libsoup3.0-dev
+          libatk1.0-dev
 
       - name: Update local toolchain
         run: |
