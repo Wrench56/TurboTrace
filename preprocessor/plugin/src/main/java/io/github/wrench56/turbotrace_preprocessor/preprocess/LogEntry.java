@@ -44,13 +44,16 @@ public class LogEntry {
   public JSONArray parseArguments(JSONObject entry) {
     JSONArray args = new JSONArray();
     String template = this.template;
-    int argNumber = 0;
 
     ResolvedType argType;
-    for (Expression arg : methodCallExpr.getArguments()) {
+    NodeList<Expression> argsList = methodCallExpr.getArguments();
+    Expression arg;
+
+    for (int argNumber = 0; argNumber < argsList.size(); argNumber++) {
+      arg = argsList.get(argNumber);
+
       /* Skip template string */
       if (argNumber == 0) {
-        ++argNumber;
         continue;
       }
 
@@ -62,25 +65,38 @@ public class LogEntry {
       argType = arg.calculateResolvedType();
       if (argType instanceof LazyType) {
         String value = arg.toString();
-        template = Utils.replaceNthOccurrence(template, "{}", argNumber - 1, value.substring(1, value.length() - 1));
+        if (arg.remove() == true) {
+          --argNumber;
+          template = Utils.replaceNthOccurrence(template, "{}", argNumber - 1, value.substring(1, value.length() - 1));
+        } else {
+          System.out.println("Error: Cannot remove Lazy arg \"" + arg + "\"");
+
+          /* Ensure it is inefficently sent through */
+          args.put("str");
+        }
+
+        System.out.println(methodCallExpr);
       } else if (argType instanceof ResolvedPrimitiveType) {
         /* Primitives */
         args.put(((ResolvedPrimitiveType) argType).describe());
       } else if (argType instanceof ReferenceType) {
-        /* References (Strings) */
+        /* References */
         args.put(((ReferenceType) argType).resolve().describe());
+      } else if (argType instanceof ReferenceTypeImpl) {
+        /* References again? */
+        args.put(((ReferenceTypeImpl) argType).toRawType().describe().replace("java.lang.String", "str"));
       } else if (argType instanceof NullType) {
         /* Ignore and remove from template */
         template = Utils.replaceNthOccurrence(template, "{}", argNumber - 1, "");
       } else if (argType instanceof ResolvedVoidType) {
         /* TODO: Find out whether we need this */
       } else {
+        System.out.println("Warning: Unrecognized type \"" + argType.getClass() + "\"");
         System.out.println("Warning: Unknown wrapper used for argument: " + arg);
         wrapWithUnknownWrapper(arg);
         args.put("str");
       }
 
-      ++argNumber;
     }
 
     /* Remove escaped "-s */
@@ -89,7 +105,6 @@ public class LogEntry {
 
   }
 
-  /* TODO: Use this */
   private ObjectCreationExpr wrapWithUnknownWrapper(Expression arg) {
     ObjectCreationExpr objectCreationExpr = new ObjectCreationExpr();
     objectCreationExpr.setType(UNKNOWN_WRAPPER_CLASS);
