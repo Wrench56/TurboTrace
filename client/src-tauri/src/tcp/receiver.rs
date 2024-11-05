@@ -203,7 +203,7 @@ fn handle_connection(mut stream: &TcpStream, mut prod: Producer<u8, TCPRingbuffe
                 statusbar::update_connection_status(false);
                 break 'outer;
             }
-            Err(ref e) => {
+            Err(ref _e) => {
                 break 'outer;
             }
         };
