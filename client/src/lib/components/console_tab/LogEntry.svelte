@@ -11,7 +11,7 @@
     log.ftimestamp = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}.${date.getMilliseconds().toString().padStart(4, '0')}`;
 </script>
 
-<div>
+<div class="container">
     <p class="timestamp">[{log.ftimestamp}]</p>
     <span class="{log.level}">{log.level}</span>
     <p class="module"> [{log.module}]</p>
@@ -19,6 +19,10 @@
 </div>
 
 <style>
+    .container {
+        display: flex;
+    }
+
     p {
         display: inline;
         color: #ABB2BF;
@@ -29,7 +33,7 @@
     }
 
     span {
-        display: inline-block;
+        display: inline;
         width:70px;
         max-width:70px;
         border-radius: 30px;
@@ -44,7 +48,7 @@
     }
 
     .timestamp {
-        display: inline-block;
+        display: inline;
         width: 120px;
         max-width: 120px;
         color: #ABB2BF;
@@ -76,10 +80,12 @@
     }
 
     .module {
-        display: inline-block;
-        width: 300px;
-        max-width: 300px;
+        display: inline;
         color: #ABB2BF;
+    }
+    
+    .message {
+        display: inline;
     }
 
 </style>
