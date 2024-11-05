@@ -11,11 +11,20 @@
   import { onMount } from "svelte";
   import LogStore from "$lib/stores/LogStore";
   import { levelFilterStore } from "$lib/stores/FilterStore";
+  import VolumeStore from "$lib/stores/VolumeStore";
 
   onMount(async () => {
     await listen<LogEntry>("ttlog", (event) => {
       LogStore.update((items) => {
-        // @ts-ignore
+        const payload = event.payload as LogEntry;
+        VolumeStore.update(
+          (current) =>
+            (current +=
+              payload.timestamp.toString().length +
+              payload.level.toString().length +
+              payload.module.length +
+              payload.message.length)
+        );
         items.push(event.payload as ConsolePrint);
         if (autoScroll) {
           container?.scrollTo({

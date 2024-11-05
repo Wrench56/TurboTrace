@@ -7,6 +7,7 @@ use std::sync::Arc;
 use std::net::{IpAddr, SocketAddr, TcpStream};
 use std::time::Duration;
 
+use crate::frontend::statusbar::update_bytes_recv;
 use crate::frontend::{emitter, statusbar};
 use crate::globals;
 use crate::logparser::payload_factory::PayloadFactory;
@@ -188,6 +189,7 @@ fn handle_connection(mut stream: &TcpStream, mut prod: Producer<u8, TCPRingbuffe
                     break 'outer;
                 }
 
+                update_bytes_recv(bytes_read);
                 /* TODO: Overflow protection */
                 let _ = prod.write_all(&temp_buf[..bytes_read]);
             }
@@ -202,7 +204,6 @@ fn handle_connection(mut stream: &TcpStream, mut prod: Producer<u8, TCPRingbuffe
                 break 'outer;
             }
             Err(ref e) => {
-                log::error!("Unhandled error: {}", e.kind());
                 break 'outer;
             }
         };

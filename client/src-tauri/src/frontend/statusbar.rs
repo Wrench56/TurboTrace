@@ -1,9 +1,15 @@
 use tauri::{AppHandle, Emitter};
 
+use lazy_static::lazy_static;
+
 use crate::globals;
 use core::time;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use sysinfo::System;
+
+lazy_static! {
+    static ref RAW_BYTES_RECV: Mutex<usize> = Mutex::new(0);
+}
 
 #[derive(Clone, serde::Serialize)]
 struct SysStatusPayload {
@@ -16,6 +22,11 @@ struct NetStatusPayload {
     connected: bool,
 }
 
+#[derive(Clone, serde::Serialize)]
+struct RawBytesRecvPayload {
+    raw_bytes: usize,
+}
+
 pub fn update_connection_status(connected: bool) {
     if let Some(app) = globals::get_app_handle() {
         if app
@@ -23,6 +34,27 @@ pub fn update_connection_status(connected: bool) {
             .is_err()
         {
             log::error!("Couldn't emit \"net_stat\" event");
+        }
+    } else {
+        log::info!("Could not get AppHandle");
+    }
+}
+
+pub fn update_bytes_recv(bytes_recv: usize) {
+    let mut raw_bytes_recv_handle = RAW_BYTES_RECV.lock().unwrap();
+    *raw_bytes_recv_handle += bytes_recv;
+
+    if let Some(app) = globals::get_app_handle() {
+        if app
+            .emit(
+                "raw_bytes",
+                RawBytesRecvPayload {
+                    raw_bytes: *raw_bytes_recv_handle,
+                },
+            )
+            .is_err()
+        {
+            log::error!("Couldn't emit \"sys_stat\" event");
         }
     } else {
         log::info!("Could not get AppHandle");
