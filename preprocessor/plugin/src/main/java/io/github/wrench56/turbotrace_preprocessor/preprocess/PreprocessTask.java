@@ -3,9 +3,11 @@ package io.github.wrench56.turbotrace_preprocessor.preprocess;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ParserConfiguration;
 import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.printer.lexicalpreservation.LexicalPreservingPrinter;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
-import com.github.javaparser.symbolsolver.utils.SymbolSolverCollectionStrategy;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.*;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,7 +25,7 @@ public class PreprocessTask extends DefaultTask {
   private static final String TEMP_FOLDER = "temp/";
   private static final String SRC_FOLDER = "src/";
   private static final String BUILD_FOLDER = "build/";
-  private static final String JSON_PATH = "logtypes.json";
+  private static final String JSON_PATH = "../logtypes.json";
 
   private static JSONObject json;
 
@@ -38,6 +40,15 @@ public class PreprocessTask extends DefaultTask {
   }
 
   private void preprocessInit(Path srcDir, Path buildDir) {
+    /* Delete temp */
+    Path temp = srcDir.getParent().resolve(TEMP_FOLDER);
+    if (Files.exists(temp)) {
+      if (!Utils.deleteDirectory(temp)) {
+        System.out.println("Error during preprocessing: couldn't delete temp/ directory");
+        return;
+      }
+    }
+
     /* Create directories */
     if (!createDirectory(srcDir, "Error during preprocessing: couldn't create srcDir"))
       return;
@@ -51,7 +62,6 @@ public class PreprocessTask extends DefaultTask {
     /* Copy the original source code */
     if (!Utils.copyDirectory(srcDir, srcDir.getParent().resolve(TEMP_FOLDER))) {
       System.out.println("Error during preprocessing: couldn't copy srcDir");
-      return;
     }
 
     /* Create Java parsers */
@@ -112,7 +122,15 @@ public class PreprocessTask extends DefaultTask {
   private static void processFile(Path path) {
     try {
       CompilationUnit cu = StaticJavaParser.parse(path);
+      CompilationUnit lpp = LexicalPreservingPrinter.setup(cu);
       cu.accept(new TurboTraceLogVisitor(path.toString(), PreprocessTask.json), null);
+
+      /* Save modified source */
+      try (BufferedWriter writer = new BufferedWriter(new FileWriter(path.toFile()))) {
+        writer.write(LexicalPreservingPrinter.print(lpp));
+      } catch (IOException e) {
+        System.out.println("Error saving modified source: " + e.getMessage());
+      }
     } catch (IOException e) {
       System.out.println(
           String.format("Error during preprocessing: couldn't process file \"%s\"", path));
