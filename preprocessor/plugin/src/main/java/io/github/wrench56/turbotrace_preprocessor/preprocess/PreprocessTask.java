@@ -77,6 +77,7 @@ public class PreprocessTask extends DefaultTask {
     if (files.size() == 0)
       return;
 
+    TurboTraceLogVisitor.resetIds();
     files.forEach(PreprocessTask::processFile);
 
     /* Save JSON */

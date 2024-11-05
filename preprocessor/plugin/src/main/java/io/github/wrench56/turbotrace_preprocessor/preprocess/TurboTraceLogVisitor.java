@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import org.json.JSONObject;
 
 public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
+  private static final int RESERVED_IDS = 128;
+
   /* Reserve the first 128 IDs for special messages */
   private static int id = 128;
   private static JSONObject json;
@@ -101,5 +103,9 @@ public class TurboTraceLogVisitor extends VoidVisitorAdapter<Void> {
     /* Ignore any escaped {}-s (\{}) */
     Matcher matcher = Pattern.compile("(?<!\\\\\\\\)\\{\\}").matcher(str);
     return (int) matcher.results().count();
+  }
+
+  public static void resetIds() {
+    id = RESERVED_IDS;
   }
 }
