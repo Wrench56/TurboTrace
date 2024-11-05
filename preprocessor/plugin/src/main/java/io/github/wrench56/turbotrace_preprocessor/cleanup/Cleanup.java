@@ -22,24 +22,20 @@ public class Cleanup extends DefaultTask {
   }
 
   private void cleanup(Path srcDir) {
+    if (!Utils.deleteDirectory(srcDir)) {
+      System.out.println("Error during cleanup: couldn't delete src/ directory");
+      return;
+    }
+
     if (!Utils.copyDirectory(srcDir.getParent().resolve(TEMP_FOLDER), srcDir)) {
       System.out.println("Error during cleanup: couldn't copy temp/ directory");
       return;
     }
-  }
 
-  public boolean deleteTemp(Path srcDir) {
-    Path tempDir = srcDir.resolve(TEMP_FOLDER);
-
-    try {
-      Files.walk(tempDir).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-    } catch (IOException e) {
-      return false;
+    if (!Utils.deleteDirectory(srcDir.getParent().resolve(TEMP_FOLDER))) {
+      System.out.println("Error during cleanup: couldn't delete temp/ directory");
+      return;
     }
-
-    /* Check whether directory was deleted */
-    if (Files.exists(tempDir)) return false;
-
-    return true;
   }
+
 }
