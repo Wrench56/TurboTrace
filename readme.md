@@ -1,5 +1,9 @@
 # TurboTrace
 
+<p align="center">
+  <img src="assets/client.png" alt="TurboTrace Client" />
+</p>
+
 A log compression tool that includes:
 
 - A client to view logs.
