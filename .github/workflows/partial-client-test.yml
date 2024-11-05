@@ -15,7 +15,7 @@ jobs:
       - name: Install Linux packages
         run: |
           sudo apt update && sudo apt install -y \
-          libwebkit2gtk-4.0-dev \
+          libwebkit2gtk-4.1-dev \
           build-essential \
           curl \
           wget \
@@ -26,7 +26,8 @@ jobs:
           librsvg2-dev \
           libappindicator-dev \
           libgdk3.0-cil \
-          libatk1.0-dev
+          libatk1.0-dev \
+          libsoup3.0-dev
 
       - name: Update local toolchain
         run: |
